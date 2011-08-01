@@ -1,0 +1,560 @@
+<?php
+require_once 'Sept11/Import/Strategy/Interface.php';
+
+abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy_Interface
+{
+    protected $_dbSept11;
+    protected $_dbOmeka;
+    protected $_collectionSept11;
+    
+    private $_privateStatuses = array(Sept11_Import::STATUS_REVIEW, 
+                                      Sept11_Import::STATUS_REJECTED, 
+                                      Sept11_Import::STATUS_PRIVATE);
+    private $_privateConsents = array(Sept11_Import::CONSENT_NO, 
+                                      Sept11_Import::CONSENT_CONDITIONAL);
+    private $_privatePostings = array('no');
+    
+    private $_sources = array(
+        Sept11_Import::SOURCE_BORN_DIGITAL => 'born-digital', 
+        Sept11_Import::SOURCE_DIGITAL_IMAGE => 'digital image', 
+        Sept11_Import::SOURCE_SCANNED_IMAGE => 'scanned image', 
+        Sept11_Import::SOURCE_DIGITALLY_RECORDED => 'digitally recorded', 
+        Sept11_Import::SOURCE_TRANSCRIPTION => 'transcription', 
+        Sept11_Import::SOURCE_UNKNOWN => 'unknown', 
+    );
+    
+    private $_mediaTypes = array(
+        Sept11_Import::MEDIA_TYPE_AUDIO => 'audio', 
+        Sept11_Import::MEDIA_TYPE_DOCUMENT => 'document', 
+        Sept11_Import::MEDIA_TYPE_STILL_IMAGE => 'still image', 
+        Sept11_Import::MEDIA_TYPE_MOVING_IMAGE => 'moving image', 
+        Sept11_Import::MEDIA_TYPE_EMAIL => 'email', 
+        Sept11_Import::MEDIA_TYPE_WEBPAGE => 'webpage', 
+        Sept11_Import::MEDIA_TYPE_STORY => 'story', 
+        Sept11_Import::MEDIA_TYPE_ARTICLE => 'article', 
+        Sept11_Import::MEDIA_TYPE_MIXED_MEDIA => 'mixed media', 
+        Sept11_Import::MEDIA_TYPE_DATA => 'data', 
+        Sept11_Import::MEDIA_TYPE_INTERVIEW => 'interview', 
+        Sept11_Import::MEDIA_TYPE_UNKNOWN => 'unknown', 
+    );
+    
+    private $_statuses = array(
+        Sept11_Import::STATUS_REVIEW => 'review', 
+        Sept11_Import::STATUS_APPROVED => 'approved', 
+        Sept11_Import::STATUS_REJECTED => 'rejected', 
+        Sept11_Import::STATUS_FEATURED => 'featured', 
+        Sept11_Import::STATUS_PRIVATE => 'private', 
+    );
+    
+    private $_consents = array(
+        Sept11_Import::CONSENT_FULL => 'full',
+        Sept11_Import::CONSENT_NO => 'no', 
+        Sept11_Import::CONSENT_IMPLIED => 'implied', 
+        Sept11_Import::CONSENT_CONDITIONAL => 'conditional', 
+        Sept11_Import::CONSENT_UNKNOWN => 'unknown', 
+    );
+    
+    /**
+     * Construct this import object.
+     */
+    public function __construct()
+    {
+        // Cache databases.
+        $this->_dbSept11 = Sept11_Import::getDbSept11();
+        $this->_dbOmeka = Sept11_Import::getDbOmeka();
+        
+        // Set the Sept11 collection to import.
+        $this->_collectionSept11 = $this->_fetchCollectionSept11($this->getCollectionIdSept11());
+    }
+    
+    /**
+     * Delete this collection from Omeka.
+     * 
+     * Override this method in child class.
+     */
+    public function delete()
+    {}
+    
+    /**
+     * Install this collection.
+     * 
+     * Override this method in child class.
+     */
+    public function import()
+    {}
+    
+    /**
+     * Resume a previously initialized import on this collection.
+     * 
+     * Override this method in child class.
+     */
+    public function resume()
+    {}
+    
+    /**
+     * Get the Sept11 collection ID.
+     * 
+     * Implement this method in child class.
+     */
+    abstract public function getCollectionIdSept11();
+    
+    /**
+     * Get the item type metadata.
+     * 
+     * Implement this method in child class.
+     * 
+     * @return array
+     */
+    abstract protected function _getItemTypeMetadata();
+    
+    /**
+     * Get the item type element metadata.
+     * 
+     * Implement this method in child class. Item type elements must be uniquely 
+     * named since they may have semantically unique descriptions. To accomplish 
+     * this, use the item type name as the element name prefix. For example: 
+     * "Item Type Name: Element Name"
+     * 
+     * @return array
+     */
+    abstract protected function _getItemTypeElementMetadata();
+    
+    /**
+     * Insert the item type this collection will use.
+     * 
+     * @return int
+     */
+    protected function _insertItemType()
+    {
+        $metadata = $this->_getItemTypeMetadata();
+        $elementMetadata = $this->_getItemTypeElementMetadata();
+        
+        // A shared item type may already exist, so don't insert it.
+        $itemType = $this->_dbOmeka->getTable('ItemType')->findByName($metadata['name']);
+        if ($itemType) {
+            return $itemType->id;
+        }
+        
+        $itemType = insert_item_type($metadata, $elementMetadata);
+        return $itemType->id;
+    }
+    
+    /**
+     * Insert the collection and log the collection/collection mapping.
+     * 
+     * Transparent interface to insert_collection(). 
+     * 
+     * @param array $collectionMetadataOmeka
+     * @return int
+     */
+    protected function _insertCollection(array $collectionMetadataOmeka = array())
+    {
+        // Set collection metadata if not already set.
+        if (!isset($collectionMetadataOmeka['name'])) {
+            $collectionMetadataOmeka['name'] = $this->_collectionSept11['COLLECTION_TITLE'];
+        }
+        if (!isset($collectionMetadataOmeka['description'])) {
+            $collectionMetadataOmeka['description'] = $this->_collectionSept11['COLLECTION_DESC'];
+        }
+        $collectionMetadataOmeka['public'] = $this->_collectionIsPublic($this->_collectionSept11);
+        
+        $collectionOmeka = insert_collection($collectionMetadataOmeka);
+        $collectionIdOmeka = $collectionOmeka->id;
+        $this->_logCollection($collectionIdOmeka);
+        
+        // Release the collection object to avoid memory leak.
+        release_object($collectionOmeka);
+        return $collectionIdOmeka;
+    }
+    
+    /**
+     * Insert the item and log the object/item mapping.
+     * 
+     * Transparent interface to insert_item(). 
+     * 
+     * @param array $metadata
+     * @param array $elementTexts
+     * @param int $collectionOmekaId
+     * @param array $object
+     * @return int
+     */
+    protected function _insertItem($collectionOmekaId, 
+                                   array $object, 
+                                   array $metadata = array(), 
+                                   array $elementTexts = array(), 
+                                   array $fileMetadata = array())
+    {
+        // Set item metadata (overwrite if already set).
+        $metadata['collection_id'] = $collectionOmekaId;
+        $metadata['public'] = $this->_itemIsPublic($object);
+        
+        // Set Dublin Core element texts if not already set. Setting html to 
+        // true will remove new lines.
+        if (!isset($elementTexts['Dublin Core']['Title'])) {
+            $elementTexts['Dublin Core']['Title'] = array(array('text' => $object['OBJECT_TITLE'], 'html' => false));
+        }
+        if (!isset($elementTexts['Dublin Core']['Description'])) {
+            $elementTexts['Dublin Core']['Description'] = array(array('text' => $object['OBJECT_DESC'], 'html' => false));
+        }
+        
+        // Set item element texts.
+        $elementTexts[Sept11_Import::SEPT11_ITEM_ELEMENT_SET] = array(
+            'Status' => array(array('text' => $this->_statuses[$object['STATUS_ID']], 'html' => false)), 
+            'Consent' => array(array('text' => $this->_consents[$object['CONSENT_ID']], 'html' => false)), 
+            'Posting' => array(array('text' => $object['OBJECT_POSTING'], 'html' => false)), 
+            'Copyright' => array(array('text' => $object['OBJECT_COPYRIGHT'], 'html' => false)), 
+            'Source' => array(array('text' => $this->_sources[$object['SOURCE_ID']], 'html' => false)), 
+            'Media Type' => array(array('text' => $this->_mediaTypes[$object['OBJECT_MEDIA_TYPE_ID']], 'html' => false)), 
+            'Original Name' => array(array('text' => $object['OBJECT_ORIG_NAME'], 'html' => false)), 
+            'Created by Author' => array(array('text' => $object['OBJECT_AUTHOR_CREATE'], 'html' => false)), 
+            'Described by Author' => array(array('text' => $object['OBJECT_AUTHOR_DESCRIBE'], 'html' => false)), 
+            'Date Entered' => array(array('text' => $object['OBJECT_DATE_ENTERED'], 'html' => false)), 
+            'IP Address' => array(array('text' => $object['OBJECT_IP_SOURCE'], 'html' => false)), 
+            'Annotation' => array(array('text' => $object['OBJECT_ANNOTATION'], 'html' => false)), 
+            'Notes' => array(array('text' => $object['OBJECT_NOTES'], 'html' => false)), 
+        );
+        
+        // Set contributor element texts.
+        $contributor = $this->_fetchContributorSept11($object['CONTRIBUTOR_ID']);
+        $elementTexts[Sept11_Import::SEPT11_CONTRIBUTOR_ELEMENT_SET] = array(
+            'Name' => array(array('text' => $contributor['CONTRIBUTOR_NAME'], 'html' => false)),  
+            'Phone' => array(array('text' => $contributor['CONTRIBUTOR_PHONE'], 'html' => false)),  
+            'Email' => array(array('text' => $contributor['CONTRIBUTOR_EMAIL'], 'html' => false)),  
+            'Location' => array(array('text' => $contributor['CONTRIBUTOR_LOCATION'], 'html' => false)),  
+            'Residence' => array(array('text' => $contributor['CONTRIBUTOR_RESIDENCE'], 'html' => false)),  
+            'Zipcode' => array(array('text' => $contributor['CONTRIBUTOR_ZIPCODE'], 'html' => false)),  
+            'Age' => array(array('text' => $contributor['CONTRIBUTOR_AGE'], 'html' => false)),  
+            'Gender' => array(array('text' => $contributor['CONTRIBUTOR_GENDER'], 'html' => false)),  
+            'Race' => array(array('text' => $contributor['CONTRIBUTOR_RACE'], 'html' => false)),  
+            'Occupation' => array(array('text' => $contributor['CONTRIBUTOR_OCCUPATION'], 'html' => false)),  
+            'Leads' => array(array('text' => $contributor['CONTRIBUTOR_LEADS'], 'html' => false)),  
+            'Contact' => array(array('text' => $contributor['CONTRIBUTOR_CONTACT'], 'html' => false)),  
+            'How Hear' => array(array('text' => $contributor['CONTRIBUTOR_HOWHEAR'], 'html' => false)),  
+            'Notes' => array(array('text' => $contributor['CONTRIBUTOR_NOTES'], 'html' => false)),  
+            'Posting' => array(array('text' => $contributor['CONTRIBUTOR_POSTING'], 'html' => false)),  
+            'Annotation' => array(array('text' => $contributor['CONTRIBUTOR_ANNOTATION'], 'html' => false)),  
+        );
+        
+        try {
+            $item = insert_item($metadata, $elementTexts, $fileMetadata);
+        
+        // Catch various exceptions, log the object ID, collection ID, and 
+        // information about the error, and return to the import strategy. These 
+        // errors indicate that the item was not inserted or not completely 
+        // inserted. Clean up incomplete items by matching unique fields in the 
+        // sept11 OBJECTS table to the corresponding items in Omeka, if any.
+        } catch (Omeka_File_Ingest_InvalidException $e) {
+            $this->_logError($e, $object['OBJECT_ID'], $collectionOmekaId);
+            return;
+        } catch (Omeka_File_Derivative_Exception $e) {
+            $this->_logError($e, $object['OBJECT_ID'], $collectionOmekaId);
+            return;
+        } catch (Omeka_Storage_Exception $e) {
+            $this->_logError($e, $object['OBJECT_ID'], $collectionOmekaId);
+            return;
+        }
+        
+        $itemId = $item->id;
+        $this->_logItem($object['OBJECT_ID'], $itemId, $collectionOmekaId);
+        
+        // Release the item object to avoid memory leak.
+        release_object($item);
+        return $itemId;
+    }
+    
+    /**
+     * Delete this Omeka collection.
+     * 
+     * @todo Think of a faster way to delete a collection and its items.
+     */
+    protected function _deleteCollectionOmeka()
+    {
+        // Get the corresponding Omeka collection.
+        $sql = '
+        SELECT * 
+        FROM `sept11_import_collections_log` 
+        WHERE `collection_id_sept11` = ? 
+        LIMIT 1';
+        $collectionLog = $this->_dbOmeka->fetchRow($sql, $this->_collectionSept11['COLLECTION_ID']);
+        
+        // Return if the Omeka collection does not exist.
+        if (!$collectionLog) {
+            return;
+        }
+        
+        $collectionOmeka = $this->_dbOmeka->getTable('Collection')->find($collectionLog['collection_id_omeka']);
+        
+        // Get the corresponding items and delete them.
+        $sql = '
+        SELECT `id` 
+        FROM `' . $this->_dbOmeka->prefix . 'items` 
+        WHERE `collection_id` = ?';
+        $itemIds = $this->_dbOmeka->fetchCol($sql, $collectionOmeka->id);
+        foreach ($itemIds as $itemId) {
+            $item = $this->_dbOmeka->getTable('Item')->find($itemId);
+            if ($item) {
+                $item->delete();
+            }
+        }
+        
+        // Delete the collection, item, and error logs.
+        $sql = '
+        DELETE FROM `sept11_import_collections_log` 
+        WHERE `collection_id_omeka` = ?';
+        $this->_dbOmeka->query($sql, $collectionOmeka->id);
+        
+        $sql = '
+        DELETE FROM `sept11_import_items_log` 
+        WHERE `collection_id_omeka` = ?';
+        $this->_dbOmeka->query($sql, $collectionOmeka->id);
+        
+        $sql = '
+        DELETE FROM `sept11_import_error_log` 
+        WHERE `collection_id_omeka` = ?';
+        $this->_dbOmeka->query($sql, $collectionOmeka->id);
+        
+        // Delete the Omeka collection.
+        $collectionOmeka->delete();
+    }
+    
+    /**
+     * Delete the item type and its elements.
+     * 
+     * @todo Think of a faster way to delete an item type.
+     */
+    protected function _deleteItemType()
+    {
+        $itemTypeMetadata = $this->_getItemTypeMetadata();
+        $itemType = $this->_dbOmeka->getTable('ItemType')->findByName($itemTypeMetadata['name']);
+        
+        // The item type may not exist.
+        if (!$itemType) {
+            return;
+        }
+        
+        $prefix = $this->_dbOmeka->prefix;
+        
+        // Do not delete the item type if there are element texts assigned to 
+        // elements assigned to this item type. This is to prevent deletion of 
+        // shared item types.
+        $sql = "
+        SELECT COUNT(*) AS count 
+        FROM `{$prefix}element_texts` et 
+        JOIN `{$prefix}elements` e 
+        ON et.`element_id` = e.`id` 
+        JOIN `{$prefix}item_types_elements` ite 
+        ON ite.`element_id` = e.`id` 
+        WHERE ite.`item_type_id` = ?";
+        $count = (int) $this->_dbOmeka->fetchOne($sql, $itemType->id);
+        if ($count) {
+            return;
+        }
+        
+        // Delete elements belonging to this item type.
+        $sql = "
+        SELECT e.id 
+        FROM `{$prefix}elements` e 
+        JOIN `{$prefix}item_types_elements` ite
+        ON ite.`element_id` = e.`id`
+        WHERE ite.`item_type_id` = ?";
+        $elementIds = $this->_dbOmeka->fetchCol($sql, $itemType->id);
+        foreach ($elementIds as $elementId) {
+            $this->_dbOmeka->getTable('Element')->find($elementId)->delete();
+        }
+        
+        // Delete the item type.
+        $itemType->delete();
+    }
+    
+    /**
+     * Log the mapping between a Sept11 collection and an Omeka collection.
+     * 
+     * @param int $collectionIdOmeka
+     */
+    protected function _logCollection($collectionIdOmeka)
+    {
+        $sql = '
+        INSERT INTO `sept11_import_collections_log` (
+            `collection_id_sept11`, 
+            `collection_id_omeka`
+        ) VALUES (?, ?)';
+        $this->_dbOmeka->query($sql, array($this->_collectionSept11['COLLECTION_ID'], 
+                                           $collectionIdOmeka));
+    }
+    
+    /**
+     * Log the mapping between a Sept11 object and an Omeka item.
+     * 
+     * @param int $objectId
+     * @param int $itemId
+     * @param int $collectionIdOmeka
+     */
+    protected function _logItem($objectId, $itemId, $collectionIdOmeka)
+    {
+        $sql = '
+        INSERT INTO `sept11_import_items_log` (
+            `object_id`, 
+            `item_id`, 
+            `collection_id_omeka`
+        ) VALUES (?, ?, ?)';
+        $this->_dbOmeka->query($sql, array($objectId, $itemId, $collectionIdOmeka));
+    }
+    
+    /**
+     * Log errors that occur during import.
+     * 
+     * @param Exception $e
+     * @param int $objectId
+     * @param int $collectionIdOmeka
+     */
+    protected function _logError($e, $objectId, $collectionIdOmeka)
+    {
+        $sql = '
+        INSERT INTO `sept11_import_error_log` (
+            `object_id`, 
+            `collection_id_omeka`, 
+            `exception`, 
+            `message`,
+            `code`,
+            `file`,
+            `line`,
+            `trace`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        $this->_dbOmeka->query($sql, array($objectId, $collectionIdOmeka, 
+                                           get_class($e), $e->getMessage(), 
+                                           $e->getCode(), $e->getFile(), 
+                                           $e->getLine(), $e->getTraceAsString()));
+    }
+    
+    /**
+     * Return the specified Sept11 collection.
+     * 
+     * @return array
+     */
+    protected function _fetchCollectionSept11($collectionId = null)
+    {
+        if (!$collectionId) {
+            $collectionId = $this->_collectionSept11['COLLECTION_ID'];
+        }
+        
+        $sql = '
+        SELECT * 
+        FROM `COLLECTIONS` 
+        WHERE `COLLECTION_ID` = ? 
+        LIMIT 1';
+        return Sept11_Import::getDbSept11()->fetchRow($sql, $collectionId);
+    }
+    
+    /**
+     * Return the specified Sept11 collection objects.
+     * 
+     * @return array
+     */
+   protected function _fetchCollectionObjectsSept11($collectionId = null)
+    {
+        if (!$collectionId) {
+            $collectionId = $this->_collectionSept11['COLLECTION_ID'];
+        }
+        
+        // It's very important to order by object ID here. Otherwise resume() 
+        // will not work.
+        $sql = '
+        SELECT * 
+        FROM `COLLECTIONS_OBJECTS` 
+        JOIN `OBJECTS` 
+        ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
+        WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
+        ORDER BY `OBJECTS`.`OBJECT_ID`';
+        return Sept11_Import::getDbSept11()->fetchAll($sql, $collectionId);
+    }
+    
+    /**
+     * Return the specified Sept11 collection object IDs.
+     * 
+     * Use with _fetchObject() for very large collections to avoid loading the 
+     * full object result set into memory.
+     * 
+     * @return array
+     */
+    protected function _fetchCollectionObjectIdsSept11($collectionId = null)
+    {
+        if (!$collectionId) {
+            $collectionId = $this->_collectionSept11['COLLECTION_ID'];
+        }
+        
+        // It's very important to order by object ID here. Otherwise resume() 
+        // will not work.
+        $sql = '
+        SELECT `OBJECTS`.`OBJECT_ID` 
+        FROM `COLLECTIONS_OBJECTS` 
+        JOIN `OBJECTS` 
+        ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
+        WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
+        ORDER BY `OBJECTS`.`OBJECT_ID`';
+        return Sept11_Import::getDbSept11()->fetchCol($sql, $collectionId);
+    }
+    
+    /**
+     * Return the specified Sept11 object.
+     * 
+     * @return array
+     */
+    protected function _fetchObject($objectId)
+    {
+        $sql = '
+        SELECT * 
+        FROM `OBJECTS` 
+        WHERE `OBJECT_ID` = ? 
+        LIMIT 1';
+        return Sept11_Import::getDbSept11()->fetchRow($sql, $objectId);
+    }
+    
+    /**
+     * Return the specified Sept11 contributor.
+     * 
+     * @param int $contributorId
+     * @return array
+     */
+    protected function _fetchContributorSept11($contributorId)
+    {
+        $sql = '
+        SELECT * 
+        FROM CONTRIBUTORS
+        WHERE CONTRIBUTOR_ID = ?';
+        return Sept11_Import::getDbSept11()->fetchRow($sql, $contributorId);
+    }
+    
+    /**
+     * Determine if the specified collection is public.
+     * 
+     * @param array $collection Row from Sept11 COLLECTIONS table.
+     * @return bool
+     */
+    protected function _collectionIsPublic(array $collection)
+    {
+        if (in_array($collection['STATUS_ID'], $this->_privateStatuses)) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Determine if the specified object is public.
+     * 
+     * @param array $object Row from Sept11 OBJECTS table.
+     * @return bool
+     */
+    protected function _itemIsPublic(array $object)
+    {
+        if (in_array($object['OBJECT_POSTING'], $this->_privatePostings)) {
+            return false;
+        }
+        if (in_array($object['CONSENT_ID'], $this->_privateConsents)) {
+            return false;
+        }
+        if (in_array($object['STATUS_ID'], $this->_privateStatuses)) {
+            return false;
+        }
+        return true;
+    }
+}
