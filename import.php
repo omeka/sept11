@@ -1,18 +1,5 @@
 #!/usr/bin/php -d memory_limit=500M
 <?php
-/**
- * @todo Describe all item types and elements.
- * @todo Should DC:Date be 911DA Item:Date Entered on certain collections?
- * @todo Should DC:Creator be 911DA Contributor:Name on certain collections?
- * @todo Should DC:Title not be the legacy file name on certain collections; 
- *       e.g. story6712.xml, nmah4366.xml. If not, must check 
- *       Sept11:OBJECT_TITLE against filename pattern for that specific 
- *       collection.
- * @done Post an issue to Omeka GitHub: collection description and collectors 
- *       should allow NULL. Found because Sept11Uploads collection (12601) has 
- *       COLLECTION_DESC = NULL, which results in a fatal error during import.
- */
-
 // Set the Sept11 library path.
 set_include_path(dirname(__FILE__) . '/lib' . PATH_SEPARATOR . get_include_path());
 
