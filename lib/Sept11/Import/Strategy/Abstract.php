@@ -451,10 +451,21 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
      * interrupted, this will return only those objects that have not already 
      * been imported.
      * 
+     * @param bool $idsOnly Return only object IDs, not all object rows. Use 
+     * with {@link self::_fetchObject()} for very large collections to avoid 
+     * loading the full object result set into memory.
      * @return array
      */
-   protected function _fetchCollectionObjectsSept11()
+   protected function _fetchCollectionObjectsSept11($idsOnly = false)
     {
+        if ($idsOnly) {
+            $selectExpression = '`OBJECTS`.`OBJECT_ID`';
+            $fetchType = 'fetchCol';
+        } else {
+            $selectExpression = '*';
+            $fetchType = 'fetchAll';
+        }
+        
         // Get the item log of the last successfully imported object for this 
         // Sept11 collection, if any.
         $sql = '
@@ -491,54 +502,35 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
             
             // Fetch only those Sept11 objects with IDs higher than the last 
             // successfully imported object. Returns an empty array if all 
-            // objects in this collection have already been imported.
+            // objects in this collection have already been imported. It's very 
+            // important to order by object ID here, lest resuming an import 
+            // will not work.
             $sql = '
-            SELECT * 
+            SELECT ' . $selectExpression . ' 
             FROM `COLLECTIONS_OBJECTS` 
             JOIN `OBJECTS` 
             ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
             WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
             AND `COLLECTIONS_OBJECTS`.`OBJECT_ID` > ? 
             ORDER BY `OBJECTS`.`OBJECT_ID`';
-            return Sept11_Import::getDbSept11()->fetchAll($sql, array($this->_collectionSept11['COLLECTION_ID'], 
-                                                                      $itemLogLastImported['object_id']));
+            return Sept11_Import::getDbSept11()->$fetchType(
+                $sql, 
+                array($this->_collectionSept11['COLLECTION_ID'], 
+                      $itemLogLastImported['object_id'])
+            );
         }
         
         // Otherwise get all objects belonging to this collection. It's very 
         // important to order by object ID here, lest resuming an import will 
         // not work.
         $sql = '
-        SELECT * 
+        SELECT ' . $selectExpression . ' 
         FROM `COLLECTIONS_OBJECTS` 
         JOIN `OBJECTS` 
         ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
         WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
         ORDER BY `OBJECTS`.`OBJECT_ID`';
-        return Sept11_Import::getDbSept11()->fetchAll($sql, $this->_collectionSept11['COLLECTION_ID']);
-    }
-    
-    /**
-     * Return the specified Sept11 collection object IDs.
-     * 
-     * Use with _fetchObject() for very large collections to avoid loading the 
-     * full object result set into memory.
-     * 
-     * @return array
-     */
-    protected function _fetchCollectionObjectIdsSept11()
-    {
-        $collectionId = $this->_collectionSept11['COLLECTION_ID'];
-        
-        // It's very important to order by object ID here. Otherwise resume() 
-        // will not work.
-        $sql = '
-        SELECT `OBJECTS`.`OBJECT_ID` 
-        FROM `COLLECTIONS_OBJECTS` 
-        JOIN `OBJECTS` 
-        ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
-        WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
-        ORDER BY `OBJECTS`.`OBJECT_ID`';
-        return Sept11_Import::getDbSept11()->fetchCol($sql, $collectionId);
+        return Sept11_Import::getDbSept11()->$fetchType($sql, $this->_collectionSept11['COLLECTION_ID']);
     }
     
     /**

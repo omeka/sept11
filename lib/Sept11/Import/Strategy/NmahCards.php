@@ -16,7 +16,9 @@ class Sept11_Import_Strategy_NmahCards extends Sept11_Import_Strategy_Abstract
         $collectionOmekaId = $this->_insertCollection();
         
         // Insert an Omeka item for every Sept11 object.
-        foreach ($this->_fetchCollectionObjectsSept11() as $object) {
+        foreach ($this->_fetchCollectionObjectsSept11(true) as $objectId) {
+            
+            $object = $this->_fetchObject($objectId);
             
             echo $object['OBJECT_ABSOLUTE_PATH'] . "\n";
             
