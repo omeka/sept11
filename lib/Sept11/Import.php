@@ -189,6 +189,9 @@ class Sept11_Import
     
     /**
      * Import the Sept11 collection into Omeka.
+     * 
+     * Must delete a previously imported Omeka collection to ensure that there 
+     * is only one Omeka collection to every Sept11 collection.
      */
     public function import()
     {
@@ -201,7 +204,7 @@ class Sept11_Import
      */
     public function resume()
     {
-        $this->_strategy->resume();
+        $this->_strategy->import();
     }
     
     /**

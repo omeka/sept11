@@ -76,19 +76,11 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
     {}
     
     /**
-     * Install this collection.
+     * Import or resume import on this collection.
      * 
      * Override this method in child class.
      */
     public function import()
-    {}
-    
-    /**
-     * Resume a previously initialized import on this collection.
-     * 
-     * Override this method in child class.
-     */
-    public function resume()
     {}
     
     /**
@@ -147,15 +139,24 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
      * @param array $collectionMetadataOmeka
      * @return int
      */
-    protected function _insertCollection(array $collectionMetadataOmeka = array())
+    protected function _insertCollection()
     {
-        // Set collection metadata if not already set.
-        if (!isset($collectionMetadataOmeka['name'])) {
-            $collectionMetadataOmeka['name'] = $this->_collectionSept11['COLLECTION_TITLE'];
+        // A corresponding Omeka collection may already exist.
+        $sql = '
+        SELECT `collection_id_omeka` 
+        FROM `sept11_import_collections_log` 
+        WHERE `collection_id_sept11` = ? 
+        LIMIT 1';
+        $collectionIdOmeka = $this->_dbOmeka->fetchOne($sql, $this->_collectionSept11['COLLECTION_ID']);
+        
+        // Return the Omeka collection ID if it exists.
+        if ($collectionIdOmeka) {
+            return $collectionIdOmeka;
         }
-        if (!isset($collectionMetadataOmeka['description'])) {
-            $collectionMetadataOmeka['description'] = $this->_collectionSept11['COLLECTION_DESC'];
-        }
+        
+        // Set collection metadata.
+        $collectionMetadataOmeka['name'] = $this->_collectionSept11['COLLECTION_TITLE'];
+        $collectionMetadataOmeka['description'] = $this->_collectionSept11['COLLECTION_DESC'];
         $collectionMetadataOmeka['public'] = $this->_collectionIsPublic($this->_collectionSept11);
         
         $collectionOmeka = insert_collection($collectionMetadataOmeka);
@@ -239,10 +240,11 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
             $item = insert_item($metadata, $elementTexts, $fileMetadata);
         
         // Catch various exceptions, log the object ID, collection ID, and 
-        // information about the error, and return to the import strategy. These 
-        // errors indicate that the item was not inserted or not completely 
-        // inserted. Clean up incomplete items by matching unique fields in the 
-        // sept11 OBJECTS table to the corresponding items in Omeka, if any.
+        // information about the error, and return to the import strategy. No 
+        // item ID was returned, so it is useless to log the item. These errors 
+        // indicate that the item was not inserted or not completely inserted. 
+        // Clean up incomplete items by matching unique fields in the sept11 
+        // OBJECTS table to the corresponding items in Omeka, if any.
         } catch (Omeka_File_Ingest_InvalidException $e) {
             $this->_logError($e, $object['OBJECT_ID'], $collectionOmekaId);
             return;
@@ -429,14 +431,11 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
     /**
      * Return the specified Sept11 collection.
      * 
+     * @param int $collectionId
      * @return array
      */
-    protected function _fetchCollectionSept11($collectionId = null)
+    protected function _fetchCollectionSept11($collectionId)
     {
-        if (!$collectionId) {
-            $collectionId = $this->_collectionSept11['COLLECTION_ID'];
-        }
-        
         $sql = '
         SELECT * 
         FROM `COLLECTIONS` 
@@ -448,16 +447,66 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
     /**
      * Return the specified Sept11 collection objects.
      * 
+     * If the collection was previously imported and the process was 
+     * interrupted, this will return only those objects that have not already 
+     * been imported.
+     * 
      * @return array
      */
-   protected function _fetchCollectionObjectsSept11($collectionId = null)
+   protected function _fetchCollectionObjectsSept11()
     {
-        if (!$collectionId) {
-            $collectionId = $this->_collectionSept11['COLLECTION_ID'];
+        // Get the item log of the last successfully imported object for this 
+        // Sept11 collection, if any.
+        $sql = '
+        SELECT siil.* 
+        FROM `sept11_import_collections_log` sicl 
+        JOIN `sept11_import_items_log` siil 
+        ON sicl.`collection_id_omeka` = siil.`collection_id_omeka` 
+        WHERE `collection_id_sept11` = ? 
+        ORDER BY siil.`object_id` DESC 
+        LIMIT 1';
+        $itemLogLastImported = $this->_dbOmeka->fetchRow($sql, $this->_collectionSept11['COLLECTION_ID']);
+        
+        // If an item log exists, assume the last import was interrupted and the 
+        // collection was not deleted. Fetch only those objects that have not 
+        // already been imported.
+        if ($itemLogLastImported) {
+            
+            // Delete incompletely imported item(s). This step is necessary 
+            // because, if an import is interrupted, one (rarely more than one) 
+            // item is likely to have been partially imported after the last 
+            // successfully imported item. These items must be deleted so they 
+            // can be re-imported.
+            $sql = '
+            SELECT `id` 
+            FROM `' . $this->_dbOmeka->prefix . 'items` 
+            WHERE `id` > ?';
+            $itemsIncomplete = $this->_dbOmeka->fetchCol($sql, $itemLogLastImported['item_id']);
+            foreach ($itemsIncomplete as $itemIncomplete) {
+                $item = $this->_dbOmeka->getTable('Item')->find($itemIncomplete);
+                if ($item) {
+                    $item->delete();
+                }
+            }
+            
+            // Fetch only those Sept11 objects with IDs higher than the last 
+            // successfully imported object. Returns an empty array if all 
+            // objects in this collection have already been imported.
+            $sql = '
+            SELECT * 
+            FROM `COLLECTIONS_OBJECTS` 
+            JOIN `OBJECTS` 
+            ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
+            WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
+            AND `COLLECTIONS_OBJECTS`.`OBJECT_ID` > ? 
+            ORDER BY `OBJECTS`.`OBJECT_ID`';
+            return Sept11_Import::getDbSept11()->fetchAll($sql, array($this->_collectionSept11['COLLECTION_ID'], 
+                                                                      $itemLogLastImported['object_id']));
         }
         
-        // It's very important to order by object ID here. Otherwise resume() 
-        // will not work.
+        // Otherwise get all objects belonging to this collection. It's very 
+        // important to order by object ID here, lest resuming an import will 
+        // not work.
         $sql = '
         SELECT * 
         FROM `COLLECTIONS_OBJECTS` 
@@ -465,7 +514,7 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
         ON `COLLECTIONS_OBJECTS`.`OBJECT_ID` = `OBJECTS`.`OBJECT_ID` 
         WHERE `COLLECTIONS_OBJECTS`.`COLLECTION_ID` = ? 
         ORDER BY `OBJECTS`.`OBJECT_ID`';
-        return Sept11_Import::getDbSept11()->fetchAll($sql, $collectionId);
+        return Sept11_Import::getDbSept11()->fetchAll($sql, $this->_collectionSept11['COLLECTION_ID']);
     }
     
     /**
@@ -476,11 +525,9 @@ abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy
      * 
      * @return array
      */
-    protected function _fetchCollectionObjectIdsSept11($collectionId = null)
+    protected function _fetchCollectionObjectIdsSept11()
     {
-        if (!$collectionId) {
-            $collectionId = $this->_collectionSept11['COLLECTION_ID'];
-        }
+        $collectionId = $this->_collectionSept11['COLLECTION_ID'];
         
         // It's very important to order by object ID here. Otherwise resume() 
         // will not work.
