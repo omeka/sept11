@@ -52,6 +52,7 @@ class Sept11_Import
     
     /** Collection flags */
     public static $collectionFlags = array(
+        'Test', // test strategy
         'LcArt', // Library of Congress Art
         'LcEmails', // Library of Congress Emails
         'LcStories', // Library of Congress Stories
