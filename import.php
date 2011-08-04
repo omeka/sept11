@@ -17,8 +17,7 @@ try {
         'optimize' => 'optimize the Omeka database; usually done after uninstall/delete', 
         'status' => 'view the colletion import status', 
         'collection|c=s' => 'set a collection for the specified action', 
-        'import|i' => 'import this Sept11 collection into Omeka; will delete previously imported collection', 
-        'resume|r' => 'resume a previously initialized import', 
+        'import|i' => 'import this Sept11 collection into Omeka; will resume a previously initialized import', 
         'delete|d' => 'delete a previously imported Omeka collection; do not import', 
     ));
     $options->parse();
@@ -62,8 +61,6 @@ try {
         $import->delete();
     } else if ($options->getOption('i')) {
         $import->import();
-    } else if ($options->getOption('r')) {
-        $import->resume();
     } else {
         echo "An action must be specified. No action taken.\n";
         exit;

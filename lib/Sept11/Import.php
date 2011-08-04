@@ -190,20 +190,8 @@ class Sept11_Import
     
     /**
      * Import the Sept11 collection into Omeka.
-     * 
-     * Must delete a previously imported Omeka collection to ensure that there 
-     * is only one Omeka collection to every Sept11 collection.
      */
     public function import()
-    {
-        $this->_strategy->delete();
-        $this->_strategy->import();
-    }
-    
-    /**
-     * Resume a previously initialized import.
-     */
-    public function resume()
     {
         $this->_strategy->import();
     }
