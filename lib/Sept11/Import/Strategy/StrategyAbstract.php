@@ -1,7 +1,8 @@
 <?php
-require_once 'Sept11/Import/Strategy/Interface.php';
+require_once 'Sept11/Import/Strategy/StrategyInterface.php';
 
-abstract class Sept11_Import_Strategy_Abstract implements Sept11_Import_Strategy_Interface
+abstract class Sept11_Import_Strategy_StrategyAbstract 
+    implements Sept11_Import_Strategy_StrategyInterface
 {
     protected $_dbSept11;
     protected $_dbOmeka;

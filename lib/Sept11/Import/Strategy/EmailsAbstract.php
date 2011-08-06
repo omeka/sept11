@@ -1,10 +1,10 @@
 <?php
-require_once 'Sept11/Import/Strategy/Abstract.php';
+require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 
 /**
  * Extend email import strategies off this class.
  */
-abstract class Sept11_Import_Strategy_EmailsAbstract extends Sept11_Import_Strategy_Abstract
+abstract class Sept11_Import_Strategy_EmailsAbstract extends Sept11_Import_Strategy_StrategyAbstract
 {
     private $_itemTypeMetadata = array(
         'name' => 'Email', 

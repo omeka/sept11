@@ -167,13 +167,13 @@ class Sept11_Import
         ), 
     );
     
-    /** Sept11_Import_Strategy_Interface */
+    /** Sept11_Import_Strategy_StrategyInterface */
     private $_strategy;
     
     /**
      * Construct the import object.
      */
-    public function __construct(Sept11_Import_Strategy_Interface $strategy)
+    public function __construct(Sept11_Import_Strategy_StrategyInterface $strategy)
     {
         // Load Omeka if not already loaded.
         self::loadOmeka();
@@ -425,7 +425,7 @@ class Sept11_Import
      * flag.
      * 
      * @param string $collectionFlag
-     * @return Sept11_Import_Strategy_Interface
+     * @return Sept11_Import_Strategy_StrategyInterface
      */
     public static function getStrategy($collectionFlag)
     {

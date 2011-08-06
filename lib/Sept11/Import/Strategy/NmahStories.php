@@ -1,8 +1,8 @@
 <?php
 // http://911digitalarchive.org/smithsonian/add_story.html
-require_once 'Sept11/Import/Strategy/Abstract.php';
+require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 
-class Sept11_Import_Strategy_NmahStories extends Sept11_Import_Strategy_Abstract
+class Sept11_Import_Strategy_NmahStories extends Sept11_Import_Strategy_StrategyAbstract
 {
     const COLLECTION_ID = 30;
     

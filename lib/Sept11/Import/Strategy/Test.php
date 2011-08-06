@@ -1,5 +1,5 @@
 <?php
-require_once 'Sept11/Import/Strategy/Abstract.php';
+require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 
 /**
  * Test import strategy. 
@@ -7,7 +7,7 @@ require_once 'Sept11/Import/Strategy/Abstract.php';
  * Use this to run discrete tests on the import process. Provides a mock Sept11 
  * collection and object to test against.
  */
-class Sept11_Import_Strategy_Test extends Sept11_Import_Strategy_Abstract
+class Sept11_Import_Strategy_Test extends Sept11_Import_Strategy_StrategyAbstract
 {
     const COLLECTION_ID = 0;
     

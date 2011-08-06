@@ -1,5 +1,5 @@
 <?php
-interface Sept11_Import_Strategy_Interface
+interface Sept11_Import_Strategy_StrategyInterface
 {
     /**
      * Delete the Omeka collection.
