@@ -1,5 +1,15 @@
 #!/usr/bin/php -d memory_limit=500M
 <?php
+/**
+ * Confirm a user action.
+ * 
+ * @param string $prompt
+ */
+function confirm($prompt)
+{
+    if ('yes' != readline("$prompt (yes, no): ")) exit;
+}
+
 // Set the Sept11 library path.
 set_include_path(dirname(__FILE__) . '/lib' . PATH_SEPARATOR . get_include_path());
 
@@ -33,9 +43,11 @@ try {
         echo 'Select from these collections: ' . implode(', ', Sept11_Import::$collectionFlags) . "\n\n";
         exit;
     } else if ($options->getOption('install')) {
+        confirm('Install the Omeka import environment?');
         Sept11_Import::install();
         exit;
     } else if ($options->getOption('uninstall')) {
+        confirm('Uninstall the Omeka import environment?');
         Sept11_Import::uninstall();
         exit;
     } else if ($options->getOption('optimize')) {
@@ -58,6 +70,7 @@ try {
     
     // Run an action on the collection.
     if ($options->getOption('d')) {
+        confirm('Delete this Omeka collection?');
         $import->delete();
     } else if ($options->getOption('i')) {
         $import->import();
