@@ -246,6 +246,9 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
         // indicate that the item was not inserted or not completely inserted. 
         // Clean up incomplete items by matching unique fields in the sept11 
         // OBJECTS table to the corresponding items in Omeka, if any.
+        } catch (Omeka_File_Ingest_Exception $e) {
+            $this->_logError($e, $object['OBJECT_ID'], $collectionOmekaId);
+            return;
         } catch (Omeka_File_Ingest_InvalidException $e) {
             $this->_logError($e, $object['OBJECT_ID'], $collectionOmekaId);
             return;
