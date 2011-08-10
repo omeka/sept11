@@ -85,8 +85,12 @@ class Sept11_Import
         'NmahStories', // "September 11: Bearing Witness to History" Stories
         'NmahCards', // "September 11: Bearing Witness to History" Stories from exhibit Visitors
         'NmahCardsUncategorized', // "September 11: Bearing Witness to History" Stories from exhibit Visitors UNCATEGORIZED COLLECTION
-        'Sept11Collections', // September 11 Collections
         'Sept11Uploads', // Uploaded files
+        
+        // September 11 Collections
+        'CathyJoritz', // Cathy Joritz
+        'AriannaZinda', // Arianna Zinda
+        'JangFilms', // Jang Films
     );
     
     /** Element sets to install */
