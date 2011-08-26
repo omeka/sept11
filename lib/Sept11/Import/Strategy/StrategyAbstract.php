@@ -216,27 +216,6 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
             'Notes' => array(array('text' => $object['OBJECT_NOTES'], 'html' => false)), 
         );
         
-        // Set contributor element texts.
-        $contributor = $this->_fetchContributorSept11($object['CONTRIBUTOR_ID']);
-        $elementTexts[Sept11_Import::SEPT11_CONTRIBUTOR_ELEMENT_SET] = array(
-            'Name' => array(array('text' => $contributor['CONTRIBUTOR_NAME'], 'html' => false)),  
-            'Phone' => array(array('text' => $contributor['CONTRIBUTOR_PHONE'], 'html' => false)),  
-            'Email' => array(array('text' => $contributor['CONTRIBUTOR_EMAIL'], 'html' => false)),  
-            'Location' => array(array('text' => $contributor['CONTRIBUTOR_LOCATION'], 'html' => false)),  
-            'Residence' => array(array('text' => $contributor['CONTRIBUTOR_RESIDENCE'], 'html' => false)),  
-            'Zipcode' => array(array('text' => $contributor['CONTRIBUTOR_ZIPCODE'], 'html' => false)),  
-            'Age' => array(array('text' => $contributor['CONTRIBUTOR_AGE'], 'html' => false)),  
-            'Gender' => array(array('text' => $contributor['CONTRIBUTOR_GENDER'], 'html' => false)),  
-            'Race' => array(array('text' => $contributor['CONTRIBUTOR_RACE'], 'html' => false)),  
-            'Occupation' => array(array('text' => $contributor['CONTRIBUTOR_OCCUPATION'], 'html' => false)),  
-            'Leads' => array(array('text' => $contributor['CONTRIBUTOR_LEADS'], 'html' => false)),  
-            'Contact' => array(array('text' => $contributor['CONTRIBUTOR_CONTACT'], 'html' => false)),  
-            'How Hear' => array(array('text' => $contributor['CONTRIBUTOR_HOWHEAR'], 'html' => false)),  
-            'Notes' => array(array('text' => $contributor['CONTRIBUTOR_NOTES'], 'html' => false)),  
-            'Posting' => array(array('text' => $contributor['CONTRIBUTOR_POSTING'], 'html' => false)),  
-            'Annotation' => array(array('text' => $contributor['CONTRIBUTOR_ANNOTATION'], 'html' => false)),  
-        );
-        
         try {
             $item = insert_item($metadata, $elementTexts, $fileMetadata);
         
