@@ -239,6 +239,17 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
             return;
         }
         
+        // Record the item contributor.
+        $sql = '
+        SELECT `contributor_id_omeka` 
+        FROM `sept11_import_contributors_log` 
+        WHERE `contributor_id_sept11` = ?';
+        $contributorId = $this->_dbOmeka->fetchOne($sql, $object['CONTRIBUTOR_ID']);
+        $this->_dbOmeka->insert('contributors_items', array(
+            'contributor_id' => $contributorId, 
+            'item_id' => $item->id, 
+        ));
+        
         $itemId = $item->id;
         $this->_logItem($object['OBJECT_ID'], $itemId, $collectionOmekaId);
         
@@ -278,6 +289,10 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
         foreach ($itemIds as $itemId) {
             $item = $this->_dbOmeka->getTable('Item')->find($itemId);
             if ($item) {
+                // Delete the contributor/item relation.
+                $this->_dbOmeka->delete("{$this->_dbOmeka->prefix}contributors_items", "item_id = {$item->id}");
+                
+                // Delete the item.
                 $item->delete();
             }
         }
