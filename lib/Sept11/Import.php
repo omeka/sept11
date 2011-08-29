@@ -11,9 +11,6 @@ class Sept11_Import
     /** Sept11 item element set name */
     const SEPT11_ITEM_ELEMENT_SET = '911DA Item';
     
-    /** Sept11 plugin name */
-    const SEPT11_PLUGIN = 'Sept11';
-    
     /** Sept11 sources */
     const SOURCE_BORN_DIGITAL = 1;
     const SOURCE_DIGITAL_IMAGE = 2;
@@ -168,11 +165,6 @@ class Sept11_Import
         // Load Omeka if not already loaded.
         self::loadOmeka();
         
-        // Verify that that Sept11 plugin is activated.
-        if (!plugin_is_active(self::SEPT11_PLUGIN)) {
-            throw new Sept11_Import_Exception('The "' . self::SEPT11_PLUGIN . '" plugin must be installed and activated prior to installing the import environment.');
-        }
-        
         // Uninstall the import environment in not already.
         self::uninstall();
         
@@ -224,8 +216,41 @@ class Sept11_Import
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
         self::getDbOmeka()->query($sql);
         
-        // Insert all sept11da.CONTRIBUTORS rows into the database and record 
-        // their relations in the log.
+        // Create contributor tables.
+        $sql = '
+        CREATE TABLE `' . self::getDbOmeka()->prefix . 'contributors` (
+            `id` int(10) unsigned NOT NULL auto_increment,
+            `name` text collate utf8_unicode_ci,
+            `phone` text collate utf8_unicode_ci,
+            `email` text collate utf8_unicode_ci,
+            `location` text collate utf8_unicode_ci,
+            `residence` text collate utf8_unicode_ci,
+            `zipcode` text collate utf8_unicode_ci,
+            `age` text collate utf8_unicode_ci,
+            `gender` text collate utf8_unicode_ci,
+            `race` text collate utf8_unicode_ci,
+            `occupation` text collate utf8_unicode_ci,
+            `leads` text collate utf8_unicode_ci,
+            `contact` text collate utf8_unicode_ci,
+            `howhear` text collate utf8_unicode_ci,
+            `notes` text collate utf8_unicode_ci,
+            `posting` text collate utf8_unicode_ci,
+            `annotation` text collate utf8_unicode_ci,
+            PRIMARY KEY  (`id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+        self::getDbOmeka()->query($sql);
+        
+        $sql = '
+        CREATE TABLE `' . self::getDbOmeka()->prefix . 'contributors_items` (
+            `id` int(10) unsigned NOT NULL auto_increment,
+            `contributor_id` int(10) NOT NULL, 
+            `item_id` int(10) NOT NULL, 
+            PRIMARY KEY  (`id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+        self::getDbOmeka()->query($sql);
+        
+        // Migrate contributors from sept11 to omeka and record their relations 
+        // in the log.
         $sql = 'SELECT * FROM `CONTRIBUTORS`';
         foreach (self::getDbSept11()->fetchAll($sql) as $contributor) {
             $id = self::getDbOmeka()->insert('contributors', array(
@@ -282,8 +307,6 @@ class Sept11_Import
         $db->query($sql);
         $sql = "TRUNCATE `{$db->prefix}collections`";
         $db->query($sql);
-        $sql = "TRUNCATE `{$db->prefix}contributors`";
-        $db->query($sql);
         $sql = "DELETE FROM `{$db->prefix}item_types` WHERE `id` > 13";
         $db->query($sql);
         $sql = "DELETE FROM `{$db->prefix}item_types_elements` WHERE `id` > 47";
@@ -293,7 +316,7 @@ class Sept11_Import
         $sql = "DELETE FROM `{$db->prefix}elements` WHERE `id` > 85";
         $db->query($sql);
         
-        // Delete import log tables.
+        // Delete import log and contributor tables.
         $sql = 'DROP TABLE IF EXISTS `sept11_import_collections_log`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_contributors_log`';
@@ -301,6 +324,10 @@ class Sept11_Import
         $sql = 'DROP TABLE IF EXISTS `sept11_import_items_log`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_error_log`';
+        $db->query($sql);
+        $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'contributors`';
+        $db->query($sql);
+        $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'contributors_items`';
         $db->query($sql);
         
         // Optimize the database.
