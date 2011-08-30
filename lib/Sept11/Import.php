@@ -180,16 +180,6 @@ class Sept11_Import
         self::getDbOmeka()->query($sql);
         
         $sql = '
-        CREATE TABLE `sept11_import_contributors_log` (
-            `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-            `contributor_id_sept11` int(10) unsigned NOT NULL,
-            `contributor_id_omeka` int(10) unsigned NOT NULL,
-            `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`)
-        ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
-        self::getDbOmeka()->query($sql);
-        
-        $sql = '
         CREATE TABLE `sept11_import_items_log` (
             `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
             `object_id` int(10) unsigned NOT NULL,
@@ -249,33 +239,30 @@ class Sept11_Import
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
         self::getDbOmeka()->query($sql);
         
-        // Migrate contributors from sept11 to omeka and record their relations 
-        // in the log.
-        $sql = 'SELECT * FROM `CONTRIBUTORS`';
-        foreach (self::getDbSept11()->fetchAll($sql) as $contributor) {
-            $id = self::getDbOmeka()->insert('contributors', array(
-                'name'       => $contributor['CONTRIBUTOR_NAME'], 
-                'phone'      => $contributor['CONTRIBUTOR_PHONE'], 
-                'email'      => $contributor['CONTRIBUTOR_EMAIL'], 
-                'location'   => $contributor['CONTRIBUTOR_LOCATION'], 
-                'residence'  => $contributor['CONTRIBUTOR_RESIDENCE'], 
-                'zipcode'    => $contributor['CONTRIBUTOR_ZIPCODE'], 
-                'age'        => $contributor['CONTRIBUTOR_AGE'], 
-                'gender'     => $contributor['CONTRIBUTOR_GENDER'], 
-                'race'       => $contributor['CONTRIBUTOR_RACE'], 
-                'occupation' => $contributor['CONTRIBUTOR_OCCUPATION'], 
-                'leads'      => $contributor['CONTRIBUTOR_LEADS'], 
-                'contact'    => $contributor['CONTRIBUTOR_CONTACT'], 
-                'howhear'    => $contributor['CONTRIBUTOR_HOWHEAR'], 
-                'notes'      => $contributor['CONTRIBUTOR_NOTES'], 
-                'posting'    => $contributor['CONTRIBUTOR_POSTING'], 
-                'annotation' => $contributor['CONTRIBUTOR_ANNOTATION'], 
-            ));
-            self::getDbOmeka()->getConnection()->insert('sept11_import_contributors_log', 
-                array('contributor_id_sept11' => $contributor['CONTRIBUTOR_ID'], 
-                      'contributor_id_omeka' => $id)
-            );
-        }
+        // Migrate contributors from Sept11 to Omeka. The import environment 
+        // does not need a contributor log because this process saves the 
+        // original contributor ID as the new primary key.
+        $sept11 = self::getDbSept11()->getConfig();
+        $omeka = self::getDbOmeka()->getConnection()->getConfig();
+        exec("mysqldump -u {$sept11['username']} -p{$sept11['password']} {$sept11['dbname']} CONTRIBUTORS | " 
+           . "mysql -u {$omeka['username']} -p{$omeka['password']} {$omeka['dbname']}");
+        $sql = '
+        INSERT INTO ' . self::getDbOmeka()->prefix . 'contributors (
+            id, name, phone, email, location, residence, zipcode, age, gender, 
+            race, occupation, leads, contact, howhear, notes, posting, annotation
+        ) 
+        SELECT CONTRIBUTORS.CONTRIBUTOR_ID , CONTRIBUTORS.CONTRIBUTOR_NAME, 
+        CONTRIBUTORS.CONTRIBUTOR_PHONE, CONTRIBUTORS.CONTRIBUTOR_EMAIL, 
+        CONTRIBUTORS.CONTRIBUTOR_LOCATION, CONTRIBUTORS.CONTRIBUTOR_RESIDENCE, 
+        CONTRIBUTORS.CONTRIBUTOR_ZIPCODE, CONTRIBUTORS.CONTRIBUTOR_AGE, 
+        CONTRIBUTORS.CONTRIBUTOR_GENDER, CONTRIBUTORS.CONTRIBUTOR_RACE, 
+        CONTRIBUTORS.CONTRIBUTOR_OCCUPATION, CONTRIBUTORS.CONTRIBUTOR_LEADS, 
+        CONTRIBUTORS.CONTRIBUTOR_CONTACT, CONTRIBUTORS.CONTRIBUTOR_HOWHEAR, 
+        CONTRIBUTORS.CONTRIBUTOR_NOTES, CONTRIBUTORS.CONTRIBUTOR_POSTING, 
+        CONTRIBUTORS.CONTRIBUTOR_ANNOTATION 
+        FROM CONTRIBUTORS';
+        self::getDbOmeka()->query($sql);
+        self::getDbOmeka()->query('DROP TABLE CONTRIBUTORS');
         
         // Insert element sets.
         foreach (self::$elementSets as $elementSet) {
@@ -318,8 +305,6 @@ class Sept11_Import
         
         // Delete import log and contributor tables.
         $sql = 'DROP TABLE IF EXISTS `sept11_import_collections_log`';
-        $db->query($sql);
-        $sql = 'DROP TABLE IF EXISTS `sept11_import_contributors_log`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_items_log`';
         $db->query($sql);

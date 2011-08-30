@@ -240,13 +240,8 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
         }
         
         // Record the item contributor.
-        $sql = '
-        SELECT `contributor_id_omeka` 
-        FROM `sept11_import_contributors_log` 
-        WHERE `contributor_id_sept11` = ?';
-        $contributorId = $this->_dbOmeka->fetchOne($sql, $object['CONTRIBUTOR_ID']);
         $this->_dbOmeka->insert('contributors_items', array(
-            'contributor_id' => $contributorId, 
+            'contributor_id' => $object['CONTRIBUTOR_ID'], 
             'item_id' => $item->id, 
         ));
         
