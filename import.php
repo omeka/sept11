@@ -26,9 +26,8 @@ try {
         'uninstall' => 'uninstall the Omeka import environment', 
         'optimize' => 'optimize the Omeka database; usually done after uninstall/delete', 
         'status' => 'view the colletion import status', 
-        'collection|c=s' => 'set a collection for the specified action', 
-        'import|i' => 'import this Sept11 collection into Omeka; will resume a previously initialized import', 
-        'delete|d' => 'delete a previously imported Omeka collection; do not import', 
+        'import|i=s' => 'import this Sept11 collection into Omeka; will resume a previously initialized import', 
+        'delete|d=s' => 'delete a previously imported Omeka collection; do not import', 
     ));
     $options->parse();
     
@@ -58,26 +57,17 @@ try {
         exit;
     }
     
-    // Get the collection flag.
-    $collectionFlag = $options->getOption('c');
-    if (!$collectionFlag) {
-        echo "A collection must be specified. No action taken.\n";
-        exit;
-    }
-    
-    // Set the import strategy.
-    $import = new Sept11_Import(Sept11_Import::getStrategy($collectionFlag));
-    
-    // Run an action on the collection.
-    if ($options->getOption('d')) {
-        confirm('Delete this Omeka collection?');
-        $import->delete();
-    } else if ($options->getOption('i')) {
-        $import->import();
+    if ($collectionFlag = $options->getOption('d')) {
+        $action = 'delete';
+    } else if ($collectionFlag = $options->getOption('i')) {
+        $action = 'import';
     } else {
-        echo "An action must be specified. No action taken.\n";
+        echo "An action and collection must be specified. No action taken.\n";
         exit;
     }
+    
+    $import = new Sept11_Import(Sept11_Import::getStrategy($collectionFlag));
+    $import->$action();
     
 } catch (Sept11_Import_Exception $e) {
     echo "{$e->getMessage()}\n";
