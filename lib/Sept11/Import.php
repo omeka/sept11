@@ -84,10 +84,144 @@ class Sept11_Import
         'NmahCardsUncategorized', // "September 11: Bearing Witness to History" Stories from exhibit Visitors UNCATEGORIZED COLLECTION
         'Sept11Uploads', // Uploaded files
         
-        // September 11 Collections
+        // September 11 Collections (without subdirectories)
         'CathyJoritz', // Cathy Joritz
         'AriannaZinda', // Arianna Zinda
         'JangFilms', // Jang Films
+        'VoicemailAudio', // 911 Digital Archive Phone Messages
+        'PegMccloskey', // 38 - Peg McCloskey’s emails and PowerPoint Presentations
+        'DanaGoudreault', // 39 - Dana Goudreault
+        'SmithsonianAudio', // 40 - Smithsonian Audio Files
+        'Audio', // 41 - Stuart Smith
+        'RezahMatthews', // 42 - Rezah Matthews’ Patriotic ballad “Hole in the Sky”
+        'MaxLais', // 43 - Max Lais
+        'WilliamWade', // 49 - William Wade: What I saw.
+        'JulieLoiseau', // 50 - Julie Loiseau
+        'MitchGermansky', // 51 - Mitch Germansky
+        'BillSutherland', // 52 - Bill Sutherland
+        'JosephRiley', // 55 - Joseph Riley
+        'JohnSchoneboom', // 61 - John Schoneboom
+        'BrownieHarris', // 62 - Brownie Harris
+        'ArlingtonAfterActionReport', // 63 - Arlington After Action Report
+        'CarlDorsey', // 66 - Carl Dorsey
+        'JudiB', // 97 - Judi B
+        'EvanGanyaAnderson', // 98 - Evan Ganya Anderson
+        'JohnKotzian', // 99 - John Kotzian
+        'GideonSadan', // 100 - Gideon Sadan
+        'VivekSud', // 101 - Everyone Check In: Email Conversation
+        'CrescenzoGiacomoNotarile', // 102 - Crescenzo Giacomo Notarile
+        'PhilKeller', // 103 - Pictures of the World Trade Center
+        'DougPotasky', // 109 - Doug Potasky
+        'MarkMarraccini', // 110 - Mark Marraccini
+        'GuySoucy', // 111 - Guy Soucy
+        'SomersetPics', // 112 - Open Field at Somerset
+        'Rachel', // 113 - EMT pictures at Ground Zero
+        'Nysna', // 114 - the New York State Nurses Association
+        'JamesSowder', // 115 - James Sowder
+        'CarlButler', // 116 - Carl Butler
+        'BuzGrover', // 117 - Buz Grover
+        'ChrissieBrodigan', // 118 - Chrissie Brodigan
+        'JeanHess', // 119 - Jean Hess
+        'AlexRinger', // 120 - Alex Ringer
+        'AnnMarie', // 124 - Ann Marie
+        'KirkGoodell', // 125 - Kirk Goodell
+        'DamonWilkinson', // 126 - Damon Wilkinson
+        'StuartKelly', // 127 - 11 September 2002 in Glasgow photos
+        'PatricTengelin', // 128 - Tributes to David Tengelin by family members
+        'BeataSuranyi', // 129 - Beata Suranyi
+        'SteveLevine', // 130 - WTC Black and White Photos
+        'MatiasBrasHarriott', // 131 - Matias Bras Harriott
+        'PatriciaGlasner', // 132 - Patricia Glasner
+        'TimothyMennel', // 133 - Timothy Mennel’s Pictures from Fort Greene Park
+        'MillsKelly', // 134 - Mills Kelly
+        'AaronBrune', // 135 - Aaron Brune
+        'ScottPullo', // 136 - Scott Pullo
+        'RevillDunn', // 137 - Revill Dunn’s September 11 from the back of a motorcycle
+        'Stories91101', // 138 - 91101 Stories
+        'AdamTeepe', // 143 - Adam Teepe
+        'ChadBlosser', // 144 - Chad Blosser
+        'TeenaWalkerRobin', // 145 - Teena Walker Robin’s Picture Collage
+        'MarilynErickson', // 146 - Marilyn Erickson
+        'SonicMemPreview', // 147 - Sonic Memory Audio Preview
+        'MikeSansone', // 148 - Mike Sansone
+        'PatrickHirsch', // 149 - Patrick Hirsch
+        'BenPorcari', // 150 - Ben Porcari
+        'BethMachado', // 151 - Beth Machado
+        'JonathanAbbey', // 155 - Jonathan Abbey
+        'GertVanLangendonck', // 156 - Gert Van Langendonck
+        'JudyLentz', // 157 - Judy Lentz
+        'LauraBartl', // 166 - Laura Bartl
+        'PhilYabut', // 167 - Phil Yabut’s pictures in Virginia and D.C.
+        'JeffIngram', // 168 - Jeff Ingram
+        'AndrewMcmichael', // 169 - Andrew McMichael
+        'JasonScottLuck', // 173 - Jason Scott Luck
+        'MattLucas', // 174 - Matt Lucas
+        'RobertBove', // 178 - Robert Bove Picture
+        'DanitaBishundat', // 179 - Danita Bishundat
+        'AndrewManore', // 180 - Andrew Manore
+        'GailHunterPrillerman', // 181 - Gail Hunter-Prillerman
+        'CLStaten', // 182 - C L Staten
+        'CynthiaFukami', // 183 - Cynthia Fukami
+        'CynthiaEstrella', // 192 - Cynthia Estrella
+        'MichaelCloncs', // 211 - Michael Cloncs
+        'JeffChapman', // 212 - Jeff Chapman
+        'NickMaynard', // 213 - Nick Maynard
+        'JimThomas', // 214 - Jim Thomas
+        'LouisBrendel', // 215 - Louis Brendel
+        'HananHurwitz', // 216 - Hanan Hurwitz
+        'JamieRichardWilson', // 217 - Jamie Richard Wilson
+        'AndyCarvin', // 218 - Andy Carvin
+        'DaveMccall', // 273 - Dave McCall
+        'SteveFortner', // 274 - Steve Fortner’s song ‘America, America’
+        'EdBaker', // 275 - Ed Baker
+        'AprilBurke', // 276 - April Burke
+        'HarryEbbeson', // 277 - Harry Ebbeson
+        'LaurenFarber', // 278 - Lauren Farber
+        'JonahKaplan', // 281 - Jonah Kaplan
+        'FdnyIncidentActionPlans', // 282 - FDNY Incident Action Plans
+        '911FluxTranscriptsAndIndex', // 285 - Document New York
+        'RobertWebb', // 286 - Robert Webb
+        'PhilHirschkorn', // 290 - Covering Catastrophe
+        'ConnieGHicks', // 296 - Connie G Hicks
+        'BobPugh', // 314 - Bob Pugh
+        'EdwardGold', // 315 - Edward Gold
+        'AlfonsoGatto', // 2034 - Alfonso Gatto
+        'AnnieHannahMancini', // 2035 - Annie Hannah Mancini
+        'Hashers', // 2036 - The Hash House Harriers
+        'DanCraggs', // 2037 - Dan Craggs
+        'ScottHebden', // 2038 - Scott Hebden
+        'Videos911', // 12386 - 911 Videos
+        'SeanKelley', // 12387 - Sean Kelley
+        'Gardner911', // 12388 - The Hash House Harriers emails
+        'RonNichols', // 12391 - Ron Nichols
+        'RagsdaleFlyers', // 12408 - Michael Ragsdale Flyers
+        'NathanFleet', // 12409 - Nathan Fleet
+        'Tso', // 12412 - Taliban Service Organization 
+        'MadhukarDhas', // 12413 - Madhukar Dhas
+        'Tso911', // 12419 - 911 TSO
+        'WilliamPappas', // 12420 - William Pappas
+        'FreedomUnderground', // 12427 - Freedom Underground
+        'DowntownBlackberry', // 12431 - Downtown Blackberry Emails
+        'LettersForFlight93Heroes', // 12432 - Letters For Flight 93 Heroes
+        'StephenDouglasSmith', // 12435 - Stephen Douglas Smith
+        'CliffordKing', // 12436 - Clifford King
+        'JanAltman', // 12437 - Jan Altman
+        'JasonSteinhauer', // 12438 - Jason Steinhauer
+        'LiviFrench', // 12439 - Livi French
+        'PaulGrobstein', // 12440 - Paul Grobstein
+        'Epa', // 12441 - EPA
+        'Sleepers911', // 12442 - 911 Sleepers
+        'Hashers911', // 12443 - 911 Hashers
+        'RichardMears', // 12451 - Richard Mears
+        'MeronLangsner', // 12452 - Meron Langsner
+        'KevinQuinn', // 12533 - Kevin Quinn
+        'NancyPloeger', // 12537 - Nancy Ploeger
+        'Koran911', // 12538 - 911 Koran
+        'JosephKelly', // 12541 - Joseph Kelly
+        'KoranSatire', // 12542 - Koran Satire
+        'MikaelLubtchansky', // 12545 - Mikael Lubtchansky
+        'Sleepers', // 12549 - Osama Bin-Laden's Sleeper's Handbook 
+        'AmericaAttacked', // 12550 - America Attacked
     );
     
     /** Element sets to install */
