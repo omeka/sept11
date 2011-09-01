@@ -204,6 +204,15 @@ class Sept11_Import
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
         self::getDbOmeka()->query($sql);
         
+        // Create collection note table.
+        $sql = '
+        CREATE TABLE `' . self::getDbOmeka()->prefix . 'collection_notes` (
+            `id` int(10) unsigned NOT NULL auto_increment,
+            `note` text collate utf8_unicode_ci,
+            PRIMARY KEY  (`id`)
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';
+        self::getDbOmeka()->query($sql);
+        
         // Create contributor tables.
         $sql = '
         CREATE TABLE `' . self::getDbOmeka()->prefix . 'contributors` (
@@ -307,6 +316,8 @@ class Sept11_Import
         $sql = 'DROP TABLE IF EXISTS `sept11_import_items_log`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_error_log`';
+        $db->query($sql);
+        $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'collection_notes`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'contributors`';
         $db->query($sql);
