@@ -49,7 +49,6 @@ class Sept11_Import_Strategy_Sept11Collections
                 // read_me.txt files should not be imported as items. Rather, 
                 // their contents should be saved in the collection_notes table.
                 if ('read_me.txt' == $object['OBJECT_TITLE']) {
-                    $sql = 'INSERT INTO collection_notes (note) VALUES (?)';
                     $this->_dbOmeka->insert(
                         'collection_notes', 
                         array('note' => file_get_contents($object['OBJECT_ABSOLUTE_PATH']))
