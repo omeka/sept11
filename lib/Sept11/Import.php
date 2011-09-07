@@ -86,6 +86,8 @@ class Sept11_Import
         
         // September 11 Collections (without subdirectories)
         'Sept11Collections', 
+        
+        'SaraSchwitteck', 
     );
     
     /** Element sets to install */
