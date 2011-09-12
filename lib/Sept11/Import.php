@@ -212,6 +212,7 @@ class Sept11_Import
         $sql = '
         CREATE TABLE `' . self::getDbOmeka()->prefix . 'collection_notes` (
             `id` int(10) unsigned NOT NULL auto_increment,
+            `collection_id` int(10) unsigned NOT NULL,
             `note` text collate utf8_unicode_ci,
             PRIMARY KEY  (`id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci';

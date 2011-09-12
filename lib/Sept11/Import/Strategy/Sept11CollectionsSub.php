@@ -35,9 +35,19 @@ class Sept11_Import_Strategy_Sept11CollectionsSub
             // Insert the Omeka collection.
             $collectionOmekaId = $this->_insertCollection();
             
+            // Save read_me.txt content in the collection_notes table.
+            $pathReadMe = $this->_collectionSept11['COLLECTION_FOLDER_NAME'] . '/read_me.txt';
+            if (file_exists($pathReadMe)) {
+                $this->_dbOmeka->insert(
+                    'collection_notes', 
+                    array('collection_id' => $collectionOmekaId, 
+                          'note' => file_get_contents($pathReadMe))
+                );
+            }
+            
             // Create a temporary Zip archive from the MISC_COLLECTIONS 
             // directory and remove read_me.txt from it.
-            $zipDirName = substr(strrchr($this->_collectionSept11['COLLECTION_FOLDER_NAME'], '/'), 1);
+            $zipDirName = basename($this->_collectionSept11['COLLECTION_FOLDER_NAME']);
             $zipArchivePath = Sept11_Import::PATH_TMP . "/$zipDirName";
             $dirTree = shell_exec("tree -a -I read_me.txt $zipDirName");
             exec("zip -r $zipArchivePath.zip ./$zipDirName");

@@ -51,7 +51,8 @@ class Sept11_Import_Strategy_Sept11Collections
                 if ('read_me.txt' == $object['OBJECT_TITLE']) {
                     $this->_dbOmeka->insert(
                         'collection_notes', 
-                        array('note' => file_get_contents($object['OBJECT_ABSOLUTE_PATH']))
+                        array('collection_id' => $collectionOmekaId, 
+                              'note' => file_get_contents($object['OBJECT_ABSOLUTE_PATH']))
                     );
                     continue;
                 }
