@@ -313,18 +313,18 @@ class Sept11_Import
         $sql = "DELETE FROM `{$db->prefix}elements` WHERE `id` > 85";
         $db->query($sql);
         
-        // Delete import log and contributor tables.
+        // Delete import log and other tables created during install.
         $sql = 'DROP TABLE IF EXISTS `sept11_import_collections_log`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_items_log`';
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_error_log`';
         $db->query($sql);
-        $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'collection_notes`';
+        $sql = "DROP TABLE IF EXISTS `{$db->prefix}collection_notes`";
         $db->query($sql);
-        $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'contributors`';
+        $sql = "DROP TABLE IF EXISTS `{$db->prefix}contributors`";
         $db->query($sql);
-        $sql = 'DROP TABLE IF EXISTS `' . self::getDbOmeka()->prefix . 'contributors_items`';
+        $sql = "DROP TABLE IF EXISTS `{$db->prefix}contributors_items`";
         $db->query($sql);
         
         // Optimize the database.
