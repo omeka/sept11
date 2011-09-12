@@ -5,6 +5,7 @@ require_once 'Sept11/Db/Sept11.php';
 class Sept11_Import
 {
     /** Paths */
+    const PATH_TMP = '/websites/911digitalarchive.org/omeka/sept11/tmp';
     const PATH_SEPT11 = '/websites/911digitalarchive.org/omeka/sept11/lib';
     const PATH_OMEKA_PATHS = '/websites/911digitalarchive.org/omeka/paths.php';
     

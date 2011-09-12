@@ -60,6 +60,9 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
      */
     public function __construct()
     {
+        // Set the tmp directory.
+        Zend_Registry::get('storage')->setTempDir(Sept11_Import::PATH_TMP);
+        
         // Cache databases.
         $this->_dbSept11 = Sept11_Import::getDbSept11();
         $this->_dbOmeka = Sept11_Import::getDbOmeka();

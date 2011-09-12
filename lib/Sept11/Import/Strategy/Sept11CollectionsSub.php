@@ -4,23 +4,15 @@ require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 class Sept11_Import_Strategy_Sept11CollectionsSub 
     extends Sept11_Import_Strategy_StrategyAbstract
 {
-    const PATH_ZIP_TMP = '/websites/911digitalarchive.org/omeka/sept11/tmp';
     const PATH_MISC_COLLECTION = '/websites/911digitalarchive.org/REPOSITORY/MISC_COLLECTIONS';
     
     // Sept11 collection IDs of all directories in REPOSITORY/MISC_COLLECTIONS 
     // that contain subdirectories.
     private $_collectionIdsSept11 = array(
-        // Problematic collections
-        // "Cannot copy the ingested file from temp directory to Omeka archive."
-        190, 
-        // "File is not readable or does not exist: /websites/911digitalarchive.org/omeka/sept11/tmp/www.world-memorial.org.zip"
-        // file ends with .org, not .zip
-        12453, 
-        // Non-problematic collections
-        44, 53, 56, 64, 67, 104, 121, 139, 152, 158, 170, 175, 184, 193, 219, 
-        279, 283, 287, 291, 294, 297, 316, 2039, 12389, 12392, 12403, 12406, 
-        12410, 12414, 12416, 12421, 12428, 12433, 12444, 12448, 12534, 12539, 
-        12543, 12546, 12551, 12563, 
+        44, 53, 56, 64, 67, 190, 104, 121, 139, 152, 158, 170, 175, 184, 193, 
+        219, 279, 283, 287, 291, 294, 297, 316, 2039, 12389, 12392, 12403, 
+        12406, 12410, 12414, 12416, 12421, 12428, 12433, 12444, 12448, 12453, 
+        12534, 12539, 12543, 12546, 12551, 12563, 
     );
     
     public function delete()
@@ -46,10 +38,10 @@ class Sept11_Import_Strategy_Sept11CollectionsSub
             // Create a temporary Zip archive from the MISC_COLLECTIONS 
             // directory and remove read_me.txt from it.
             $zipDirName = substr(strrchr($this->_collectionSept11['COLLECTION_FOLDER_NAME'], '/'), 1);
-            $zipArchivePath = self::PATH_ZIP_TMP . "/$zipDirName";
+            $zipArchivePath = Sept11_Import::PATH_TMP . "/$zipDirName";
             $dirTree = shell_exec("tree -a -I read_me.txt $zipDirName");
-            exec("zip -r $zipArchivePath ./$zipDirName");
-            exec("zip -d $zipArchivePath ./$zipDirName/read_me.txt");
+            exec("zip -r $zipArchivePath.zip ./$zipDirName");
+            exec("zip -d $zipArchivePath.zip ./$zipDirName/read_me.txt");
             
             // Build the pseudo object array.
             $object = array(
