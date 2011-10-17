@@ -85,11 +85,16 @@ class Sept11_Import
         'NmahCardsUncategorized', // "September 11: Bearing Witness to History" Stories from exhibit Visitors UNCATEGORIZED COLLECTION
         'Sept11Uploads', // Uploaded files
         
-        // September 11 Collections (without subdirectories)
+        // September 11 Collections, without subdirectories
         'Sept11Collections', 
         
-        // September 11 Collections (with subdirectories)
-        'Sept11CollectionsSub', 
+        // September 11 Collections, with subdirectories not containing HTML or 
+        // a deep directory hierarchy
+        'Sept11CollectionsSimple', 
+        
+        // September 11 Collections, with subdirectories containing HTML and/or 
+        // deep directory hierarchy
+        'Sept11CollectionsComplex', 
     );
     
     /** Element sets to install */

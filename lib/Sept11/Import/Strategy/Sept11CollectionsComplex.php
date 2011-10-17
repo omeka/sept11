@@ -1,18 +1,17 @@
 <?php
 require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 
-class Sept11_Import_Strategy_Sept11CollectionsSub 
+class Sept11_Import_Strategy_Sept11CollectionsComplex 
     extends Sept11_Import_Strategy_StrategyAbstract
 {
     const PATH_MISC_COLLECTION = '/websites/911digitalarchive.org/REPOSITORY/MISC_COLLECTIONS';
     
     // Sept11 collection IDs of all directories in REPOSITORY/MISC_COLLECTIONS 
-    // that contain subdirectories.
+    // that contain subdirectories and contain HTML and/or deep directory 
+    // hierarchy.
     private $_collectionIdsSept11 = array(
-        44, 53, 56, 64, 67, 190, 104, 121, 139, 152, 158, 170, 175, 184, 193, 
-        219, 279, 283, 287, 291, 294, 297, 316, 2039, 12389, 12392, 12403, 
-        12406, 12410, 12414, 12416, 12421, 12428, 12433, 12444, 12448, 12453, 
-        12534, 12539, 12543, 12546, 12551, 12563, 
+        44, 64, 67, 158, 175, 193, 219, 283, 297, 316, 2039, 12392, 12416, 
+        12421, 12444, 12453, 12546, 12551, 12563, 
     );
     
     public function delete()
