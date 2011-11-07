@@ -135,6 +135,11 @@ class Sept11_Import
         ), 
     );
     
+    /** Plugin dependencies */
+    public static $plugins = array(
+        'CollectionTree', 
+    );
+    
     /** Sept11_Import_Strategy_StrategyInterface */
     private $_strategy;
     
@@ -171,6 +176,13 @@ class Sept11_Import
     {
         // Load Omeka if not already loaded.
         self::loadOmeka();
+        
+        // Check that plugin are installed and activated.
+        foreach (self::$plugins as $plugin) {
+            if (!plugin_is_active($plugin)) {
+                throw new Sept11_Import_Exception("The required plugin \"$plugin\" is not active.");
+            }
+        }
         
         // Uninstall the import environment in not already.
         self::uninstall();
