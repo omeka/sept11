@@ -16,12 +16,85 @@ class Sept11_Import_Strategy_Sept11CollectionsSimple
     
     public function delete()
     {
-        
+        // Iterate the collections.
+        foreach ($this->_collectionIdsSept11 as $collectionIdSept11) {
+            $this->_collectionSept11 = $this->_fetchCollectionSept11($collectionIdSept11);
+            $this->_deleteCollectionOmeka();
+        }
     }
     
     public function import()
     {
-        
+        // Iterate the collections.
+        foreach ($this->_collectionIdsSept11 as $collectionIdSept11) {
+            
+            $this->_collectionSept11 = $this->_fetchCollectionSept11($collectionIdSept11);
+            
+            // Insert the Omeka collection.
+            $collectionOmekaId = $this->_insertCollection();
+            
+            // Insert an Omeka item for every Sept11 object.
+            foreach ($this->_fetchCollectionObjectsSept11() as $object) {
+                
+                // read_me.txt files should not be imported as items. Rather, 
+                // their contents should be saved in the collection_notes table.
+                if ('read_me.txt' == $object['OBJECT_TITLE']) {
+                    $this->_dbOmeka->insert(
+                        'collection_notes', 
+                        array('collection_id' => $collectionOmekaId, 
+                              'note' => file_get_contents($object['OBJECT_ABSOLUTE_PATH']))
+                    );
+                    continue;
+                }
+                
+                $metadata = array();
+                $elementTexts = array();
+                $fileMetadata = array(
+                    'file_transfer_type' => 'Filesystem', 
+                    'files' => array(
+                        'source' => $object['OBJECT_ABSOLUTE_PATH'], 
+                        'name' => $object['OBJECT_ORIG_NAME'], 
+                    )
+                );
+                
+                $itemId = $this->_insertItem($collectionOmekaId, $object, $metadata, 
+                                             $elementTexts, $fileMetadata);
+            }
+            
+            // Import child collections.
+            $childCollectionsSept11 = $this->_fetchChildCollectionsSept11($this->_collectionSept11['COLLECTION_ID']);
+            
+            foreach ($childCollectionsSept11 as $childCollectionsSept11) {
+                
+                $this->_collectionSept11 = $this->_fetchCollectionSept11($childCollectionsSept11['COLLECTION_ID']);
+                
+                // Insert the Omeka collection.
+                $childCollectionOmekaId = $this->_insertCollection();
+                
+                // Save the collection parent/child relationship.
+                $collectionTree = new CollectionTree;
+                $collectionTree->collection_id = $childCollectionOmekaId;
+                $collectionTree->parent_collection_id = $collectionOmekaId;
+                $collectionTree->save();
+                
+                // Insert an Omeka item for every Sept11 object.
+                foreach ($this->_fetchCollectionObjectsSept11() as $object) {
+                    
+                    $metadata = array();
+                    $elementTexts = array();
+                    $fileMetadata = array(
+                        'file_transfer_type' => 'Filesystem', 
+                        'files' => array(
+                            'source' => $object['OBJECT_ABSOLUTE_PATH'], 
+                            'name' => $object['OBJECT_ORIG_NAME'], 
+                        )
+                    );
+                    
+                    $itemId = $this->_insertItem($childCollectionOmekaId, $object, $metadata, 
+                                                 $elementTexts, $fileMetadata);
+                }
+            }
+        }
     }
     
     public function getCollectionIdSept11()

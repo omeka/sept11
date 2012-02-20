@@ -440,6 +440,22 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
         return Sept11_Import::getDbSept11()->fetchRow($sql, $collectionId);
     }
     
+    
+    /**
+     * Return the Sept11 child collections of the specified Sept11 collection.
+     * 
+     * @param int $parentCollectionId
+     * @return array
+     */
+    protected function _fetchChildCollectionsSept11($parentCollectionId)
+    {
+        $sql = '
+        SELECT * 
+        FROM `COLLECTIONS` 
+        WHERE `COLLECTION_PARENT_ID` = ?';
+        return Sept11_Import::getDbSept11()->fetchAll($sql, $parentCollectionId);
+    }
+    
     /**
      * Return the specified Sept11 collection objects.
      * 
