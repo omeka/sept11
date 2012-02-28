@@ -99,7 +99,9 @@ DESCRIPTION;
         foreach ($dbChinatown->fetchAll($sql) as $interview) {
             
             // Insert the item.
-            $metadata = array('item_type_id' => $itemTypeId);
+            $metadata = array('collection_id' => $collectionOmeka->id, 
+                              'item_type_id' => $itemTypeId, 
+                              'public' => true);
             $elementTexts = array(
                 ELEMENT_SET_ITEM_TYPE => array(
                     'Chinatown Interview: Interviewee' => array(array('text' => $interview['interviewee'], 'html' => false)), 
