@@ -95,6 +95,9 @@ class Sept11_Import
         // September 11 Collections, with subdirectories containing HTML and/or 
         // deep directory hierarchy
         'Sept11CollectionsComplex', 
+        
+        // "Ground One: Voices from Post-911 Chinatown"
+        'Chinatown', 
     );
     
     /** Element sets to install */
