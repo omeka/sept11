@@ -3,53 +3,39 @@ require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 
 class Sept11_Import_Strategy_Chinatown extends Sept11_Import_Strategy_StrategyAbstract
 {
+    // Set an arbitrarily large and unique Sept11 collection ID.
+    const COLLECTION_ID = 1000000;
+    
+    private $_dbChinatown;
+    
     private $_itemTypeMedatada = array(
         'name' => 'Chinatown Interview', 
         'description' => '',
     );
     
     private $_itemTypeElementMetadata = array(
-        array(
-            'name' => 'Chinatown Interview: Interviewee', 
-            'description' => '',
-        ), 
-        array(
-            'name' => 'Chinatown Interview: Interviewer', 
-            'description' => '',
-        ),
-        array(
-            'name' => 'Chinatown Interview: Date', 
-            'description' => '',
-        ),
-        array(
-            'name' => 'Chinatown Interview: Language', 
-            'description' => '',
-        ),
-        array(
-            'name' => 'Chinatown Interview: Occupation', 
-            'description' => '',
-        ),
-        array(
-            'name' => 'Chinatown Interview: Interview (en)', 
-            'description' => '',
-        ),
-        array(
-            'name' => 'Chinatown Interview: Interview (zh)', 
-            'description' => '',
-        ),
+        array('name' => 'Chinatown Interview: Interviewee', 
+              'description' => ''), 
+        array('name' => 'Chinatown Interview: Interviewer', 
+              'description' => ''),
+        array('name' => 'Chinatown Interview: Date', 
+              'description' => ''),
+        array('name' => 'Chinatown Interview: Language', 
+              'description' => ''),
+        array('name' => 'Chinatown Interview: Occupation', 
+              'description' => ''),
+        array('name' => 'Chinatown Interview: Interview (en)', 
+              'description' => ''),
+        array('name' => 'Chinatown Interview: Interview (zh)', 
+              'description' => ''),
     );
     
-    public function delete()
+    public function __construct()
     {
-        // DELETE THE COLLECTION HERE
+        parent::__construct();
         
-        $this->_deleteItemType();
-    }
-    
-    public function import()
-    {
         // Connect to the Chinatown database.
-        $dbChinatown = Zend_Db::factory('Pdo_Mysql', array(
+        $this->_dbChinatown = Zend_Db::factory('Pdo_Mysql', array(
             'host'     => '', 
             'username' => '', 
             'password' => '', 
@@ -57,13 +43,8 @@ class Sept11_Import_Strategy_Chinatown extends Sept11_Import_Strategy_StrategyAb
             'charset'  => 'utf8', // must pass utf8 connection charset
         ));
         
-        // Insert the Omeka item type.
-        $itemTypeId = $this->_insertItemType();
-        
-        
-        // Insert the Omeka collection.
-        $collectionMetadataOmeka['name'] = 'Ground One: Voices from Post-911 Chinatown';
-        $collectionMetadataOmeka['description'] = <<<DESCRIPTION
+        // Build the pseudo Sept11 collection array.
+        $collectionDescription = <<<DESCRIPTION
 New York City and the nation were deeply affected by the terrorist attacks of September 11, 2001. But the attacks also had significant consequences on a more local scale: neighborhoods throughout New York City experienced profound changes that will shape their future for some time.
 
 Located just ten blocks from Ground Zero, Chinatown is the largest residential area affected by 9/11. Much of the impact was strikingly visible. For eight days following the attack, for example, Chinatown south of Canal Street was a “frozen zone” in which all vehicular and non-residential pedestrian traffic was prohibited; and, for nearly two months, Chinatown residents and businesses were effectively isolated by the loss of telephone service. But much of 9/11’s impact on Chinatown was less evident.
@@ -72,15 +53,43 @@ To better understand the consequences of 9/11 on Chinatown and Chinese New Yorke
 
 Beginning in Fall 2003, “Ground One” interviewed 30 individuals who lived and worked in Manhattan’s Chinatown. The interviewees represented a diverse cross-section of Chinese Americans, including garment and restaurant workers, community activists, non-profit administrators, union organizers, healthcare and law professionals, senior citizens, and youth. Oral history was employed to understand how people perceived and responded to the tragic events of 9/11 in the context of their life histories. Several overarching themes were selected for this website: Personal Accounts of September 11th; Air Quality/ Health; Jobs, Language & Access; Garment Industry; 9/11 Relief; and Political and Civic Engagement. Presented here is an assemblage of voices from the perspective of a neighborhood just ten blocks away from Ground Zero.
 DESCRIPTION;
-        $collectionMetadataOmeka['public'] = true;
         
-        $collectionOmeka = insert_collection($collectionMetadataOmeka);
+        $this->_collectionSept11 = array(
+            'COLLECTION_ID'              => self::COLLECTION_ID, 
+            'COLLECTION_TITLE'           => 'Ground One: Voices from Post-911 Chinatown', 
+            'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+            'COLLECTION_DESC'            => $collectionDescription, 
+            'COLLECTION_FOLDER_NAME'     => null, 
+            'COLLECTION_ANNOTATION'      => null, 
+            'COLLECTION_NOTES'           => null, 
+            'COLLECTION_PARENT_ID'       => null, 
+            'STATUS_ID'                  => 2, 
+            'CONTRIBUTOR_ID'             => 0, 
+            'INGEST_ID'                  => null, 
+        );
+    }
+    
+    public function delete()
+    {
+        $this->_deleteCollectionOmeka();
+        $this->_deleteItemType();
+    }
+    
+    public function import()
+    {
+        
+        // Insert the Omeka item type.
+        $itemTypeId = $this->_insertItemType();
+        
+        
+        // Insert the Omeka collection.
+        $collectionOmekaId = $this->_insertCollection();
         
         // Insert the Omeka items.
         
         // Make sure GROUP_CONCAT() is not truncated.
         $sql = 'SET SESSION group_concat_max_len = 1000000';
-        $dbChinatown->exec($sql);
+        $this->_dbChinatown->exec($sql);
         
         // Get the interviews.
         $sql = "
@@ -96,30 +105,48 @@ DESCRIPTION;
         ON mk.interview_id = i.interview_id 
         GROUP BY mk.interview_id 
         ORDER BY mk.interview_id";
-        foreach ($dbChinatown->fetchAll($sql) as $interview) {
+        foreach ($this->_dbChinatown->fetchAll($sql) as $interview) {
             
-            // Insert the item.
-            $metadata = array('collection_id' => $collectionOmeka->id, 
-                              'item_type_id' => $itemTypeId, 
-                              'public' => true);
+            // Build the pseudo Sept11 object array.
+            $object = array(
+                'OBJECT_ID'              => 0, 
+                'CONTRIBUTOR_ID'         => 0, 
+                'STATUS_ID'              => 2, 
+                'CONSENT_ID'             => 5, 
+                'SOURCE_ID'              => 6, 
+                'OBJECT_MEDIA_TYPE_ID'   => 13, 
+                'OBJECT_TITLE'           => $interview['interviewee'], 
+                'OBJECT_DESC'            => null, 
+                'OBJECT_POSTING'         => 'unknown', 
+                'OBJECT_COPYRIGHT'       => 'unknown', 
+                'OBJECT_ORIG_NAME'       => null, 
+                'OBJECT_AUTHOR_CREATE'   => null, 
+                'OBJECT_AUTHOR_DESCRIBE' => null, 
+                'OBJECT_DATE_ENTERED'    => null, 
+                'OBJECT_IP_SOURCE'       => null, 
+                'OBJECT_ANNOTATION'      => null, 
+                'OBJECT_NOTES'           => null, 
+            );
+            
+            $metadata = array('item_type_id' => $itemTypeId);
             $elementTexts = array(
                 ELEMENT_SET_ITEM_TYPE => array(
-                    'Chinatown Interview: Interviewee' => array(array('text' => $interview['interviewee'], 'html' => false)), 
-                    'Chinatown Interview: Interviewer' => array(array('text' => $interview['interviewer'], 'html' => false)), 
-                    'Chinatown Interview: Date' => array(array('text' => $interview['date'], 'html' => false)), 
-                    'Chinatown Interview: Language' => array(array('text' => $interview['language'], 'html' => false)), 
-                    'Chinatown Interview: Occupation' => array(array('text' => $interview['occupation'], 'html' => false)), 
+                    'Chinatown Interview: Interviewee'    => array(array('text' => $interview['interviewee'], 'html' => false)), 
+                    'Chinatown Interview: Interviewer'    => array(array('text' => $interview['interviewer'], 'html' => false)), 
+                    'Chinatown Interview: Date'           => array(array('text' => $interview['date'], 'html' => false)), 
+                    'Chinatown Interview: Language'       => array(array('text' => $interview['language'], 'html' => false)), 
+                    'Chinatown Interview: Occupation'     => array(array('text' => $interview['occupation'], 'html' => false)), 
                     'Chinatown Interview: Interview (en)' => array(array('text' => $interview['interview_en'], 'html' => true)), 
                     'Chinatown Interview: Interview (zh)' => array(array('text' => $interview['interview_zh'], 'html' => false)), 
                 )
             );
-            $item = insert_item($metadata, $elementTexts);
+            $itemId = $this->_insertItem($collectionOmekaId, $object, $metadata, $elementTexts);
         }
     }
     
     public function getCollectionIdSept11()
     {
-        return null;
+        return self::COLLECTION_ID;
     }
     
     protected function _getItemTypeMetadata()
