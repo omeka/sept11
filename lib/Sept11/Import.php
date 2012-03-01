@@ -349,6 +349,10 @@ class Sept11_Import
         $sql = "DROP TABLE IF EXISTS `{$db->prefix}contributors_items`";
         $db->query($sql);
         
+        // Reset the tables that were installed by plugin dependencies.
+        $sql = "TRUNCATE `{$db->prefix}collection_trees`";
+        $db->query($sql);
+        
         // Optimize the database.
         Sept11_Import::optimize();
         
