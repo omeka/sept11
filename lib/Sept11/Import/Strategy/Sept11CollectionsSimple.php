@@ -40,7 +40,7 @@ class Sept11_Import_Strategy_Sept11CollectionsSimple
                 // their contents should be saved in the collection_notes table.
                 if ('read_me.txt' == $object['OBJECT_TITLE']) {
                     $this->_dbOmeka->insert(
-                        'collection_notes', 
+                        'sept11_collection_notes', 
                         array('collection_id' => $collectionOmekaId, 
                               'note' => file_get_contents($object['OBJECT_ABSOLUTE_PATH']))
                     );

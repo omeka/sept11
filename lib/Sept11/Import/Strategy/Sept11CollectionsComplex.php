@@ -38,7 +38,7 @@ class Sept11_Import_Strategy_Sept11CollectionsComplex
             $pathReadMe = $this->_collectionSept11['COLLECTION_FOLDER_NAME'] . '/read_me.txt';
             if (file_exists($pathReadMe)) {
                 $this->_dbOmeka->insert(
-                    'collection_notes', 
+                    'sept11_collection_notes', 
                     array('collection_id' => $collectionOmekaId, 
                           'note' => file_get_contents($pathReadMe))
                 );

@@ -230,7 +230,7 @@ class Sept11_Import
         
         // Create collection note table.
         $sql = '
-        CREATE TABLE `' . self::getDbOmeka()->prefix . 'collection_notes` (
+        CREATE TABLE `' . self::getDbOmeka()->prefix . 'sept11_collection_notes` (
             `id` int(10) unsigned NOT NULL auto_increment,
             `collection_id` int(10) unsigned NOT NULL,
             `note` text collate utf8_unicode_ci,
@@ -240,7 +240,7 @@ class Sept11_Import
         
         // Create contributor tables.
         $sql = '
-        CREATE TABLE `' . self::getDbOmeka()->prefix . 'contributors` (
+        CREATE TABLE `' . self::getDbOmeka()->prefix . 'sept11_contributors` (
             `id` int(10) unsigned NOT NULL auto_increment,
             `name` text collate utf8_unicode_ci,
             `phone` text collate utf8_unicode_ci,
@@ -263,7 +263,7 @@ class Sept11_Import
         self::getDbOmeka()->query($sql);
         
         $sql = '
-        CREATE TABLE `' . self::getDbOmeka()->prefix . 'contributors_items` (
+        CREATE TABLE `' . self::getDbOmeka()->prefix . 'sept11_contributors_items` (
             `id` int(10) unsigned NOT NULL auto_increment,
             `contributor_id` int(10) NOT NULL, 
             `item_id` int(10) NOT NULL, 
@@ -279,7 +279,7 @@ class Sept11_Import
         exec("mysqldump -u {$sept11['username']} -p{$sept11['password']} {$sept11['dbname']} CONTRIBUTORS | " 
            . "mysql -u {$omeka['username']} -p{$omeka['password']} {$omeka['dbname']}");
         $sql = '
-        INSERT INTO ' . self::getDbOmeka()->prefix . 'contributors (
+        INSERT INTO ' . self::getDbOmeka()->prefix . 'sept11_contributors (
             id, name, phone, email, location, residence, zipcode, age, gender, 
             race, occupation, leads, contact, howhear, notes, posting, annotation
         ) 
@@ -342,11 +342,11 @@ class Sept11_Import
         $db->query($sql);
         $sql = 'DROP TABLE IF EXISTS `sept11_import_error_log`';
         $db->query($sql);
-        $sql = "DROP TABLE IF EXISTS `{$db->prefix}collection_notes`";
+        $sql = "DROP TABLE IF EXISTS `{$db->prefix}sept11_collection_notes`";
         $db->query($sql);
-        $sql = "DROP TABLE IF EXISTS `{$db->prefix}contributors`";
+        $sql = "DROP TABLE IF EXISTS `{$db->prefix}sept11_contributors`";
         $db->query($sql);
-        $sql = "DROP TABLE IF EXISTS `{$db->prefix}contributors_items`";
+        $sql = "DROP TABLE IF EXISTS `{$db->prefix}sept11_contributors_items`";
         $db->query($sql);
         
         // Reset the tables that were installed by plugin dependencies.

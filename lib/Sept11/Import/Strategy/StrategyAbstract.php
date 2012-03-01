@@ -243,7 +243,7 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
         }
         
         // Record the item contributor.
-        $this->_dbOmeka->insert('contributors_items', array(
+        $this->_dbOmeka->insert('sept11_contributors_items', array(
             'contributor_id' => $object['CONTRIBUTOR_ID'], 
             'item_id' => $item->id, 
         ));
@@ -288,7 +288,7 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
             $item = $this->_dbOmeka->getTable('Item')->find($itemId);
             if ($item) {
                 // Delete the contributor/item relation.
-                $this->_dbOmeka->delete("{$this->_dbOmeka->prefix}contributors_items", "item_id = {$item->id}");
+                $this->_dbOmeka->delete("{$this->_dbOmeka->prefix}sept11_contributors_items", "item_id = {$item->id}");
                 
                 // Delete the item.
                 $item->delete();
