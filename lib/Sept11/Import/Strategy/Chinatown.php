@@ -142,6 +142,46 @@ DESCRIPTION;
             );
             $itemId = $this->_insertItem($collectionOmekaId, $object, $metadata, $elementTexts);
         }
+        
+        // Create a temporary Zip archive from the Chinatown website directory.
+        chdir('/websites/911digitalarchive.org');
+        $zipArchivePath = Sept11_Import::PATH_TMP . "/chinatown";
+        exec("zip -r $zipArchivePath.zip ./chinatown");
+        
+        // Build the pseudo object array.
+        $object = array(
+            'OBJECT_ID'              => 0, 
+            'CONTRIBUTOR_ID'         => 0, 
+            'STATUS_ID'              => 5, 
+            'CONSENT_ID'             => 1, 
+            'SOURCE_ID'              => 1, 
+            'OBJECT_MEDIA_TYPE_ID'   => 7, 
+            'OBJECT_TITLE'           => 'Ground One: Voices from Post-911 Chinatown', 
+            'OBJECT_DESC'            => 'ZIP archive of the original website.', 
+            'OBJECT_POSTING'         => 'unknown', 
+            'OBJECT_COPYRIGHT'       => 'unknown', 
+            'OBJECT_ORIG_NAME'       => null, 
+            'OBJECT_AUTHOR_CREATE'   => null, 
+            'OBJECT_AUTHOR_DESCRIBE' => null, 
+            'OBJECT_DATE_ENTERED'    => null, 
+            'OBJECT_IP_SOURCE'       => null, 
+            'OBJECT_ANNOTATION'      => null, 
+            'OBJECT_NOTES'           => null, 
+        );
+        
+        // Insert the item, attaching the Zip archive.
+        $metadata = array();
+        $elementTexts = array();
+        $fileMetadata = array(
+            'file_transfer_type' => 'Filesystem', 
+            'files' => "$zipArchivePath.zip", 
+        );
+        
+        $itemId = $this->_insertItem($collectionOmekaId, $object, $metadata, 
+                                     $elementTexts, $fileMetadata);
+        
+        // Delete the temporary Zip archive.
+        unlink("$zipArchivePath.zip");
     }
     
     public function getCollectionIdSept11()
