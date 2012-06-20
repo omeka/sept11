@@ -98,6 +98,9 @@ class Sept11_Import
         
         // "Ground One: Voices from Post-911 Chinatown"
         'Chinatown', 
+        
+        // "Here is New York Photos"
+        'Hiny', 
     );
     
     /** Element sets to install */
