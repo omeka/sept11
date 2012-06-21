@@ -51,37 +51,144 @@ Now That we no longer have a gallery, it is over the web that we keep this proje
 HERE IS NEW YORK is a non for profit 501(c)(3) foundation organized for purposes that are exclusively charitable and educational.
 DESCRIPTION;
         
-        $this->_collectionSept11 = array(
-            'COLLECTION_ID'              => self::COLLECTION_ID, 
-            'COLLECTION_TITLE'           => 'Here Is New York Photos', 
-            'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
-            'COLLECTION_DESC'            => $collectionDescription, 
-            'COLLECTION_FOLDER_NAME'     => null, 
-            'COLLECTION_ANNOTATION'      => null, 
-            'COLLECTION_NOTES'           => null, 
-            'COLLECTION_PARENT_ID'       => null, 
-            'STATUS_ID'                  => 2, 
-            'CONTRIBUTOR_ID'             => 0, 
-            'INGEST_ID'                  => null, 
+        $this->_hinyCollections = array(
+            0 => array(
+                'COLLECTION_ID'              => 1000001, 
+                'COLLECTION_TITLE'           => 'Here Is New York Photos', 
+                'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+                'COLLECTION_DESC'            => $collectionDescription, 
+                'COLLECTION_FOLDER_NAME'     => null, 
+                'COLLECTION_ANNOTATION'      => null, 
+                'COLLECTION_NOTES'           => null, 
+                'COLLECTION_PARENT_ID'       => null, 
+                'STATUS_ID'                  => 2, 
+                'CONTRIBUTOR_ID'             => 0, 
+                'INGEST_ID'                  => null, 
+            ), 
+            1 => array(
+                'COLLECTION_ID'              => 1000002, 
+                'COLLECTION_TITLE'           => 'World Trade Center', 
+                'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+                'COLLECTION_DESC'            => null, 
+                'COLLECTION_FOLDER_NAME'     => null, 
+                'COLLECTION_ANNOTATION'      => null, 
+                'COLLECTION_NOTES'           => null, 
+                'COLLECTION_PARENT_ID'       => null, 
+                'STATUS_ID'                  => 2, 
+                'CONTRIBUTOR_ID'             => 0, 
+                'INGEST_ID'                  => null, 
+            ), 
+            2 => array(
+                'COLLECTION_ID'              => 1000003, 
+                'COLLECTION_TITLE'           => 'HUF', 
+                'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+                'COLLECTION_DESC'            => null, 
+                'COLLECTION_FOLDER_NAME'     => null, 
+                'COLLECTION_ANNOTATION'      => null, 
+                'COLLECTION_NOTES'           => null, 
+                'COLLECTION_PARENT_ID'       => null, 
+                'STATUS_ID'                  => 2, 
+                'CONTRIBUTOR_ID'             => 0, 
+                'INGEST_ID'                  => null, 
+            ),
+            3 => array(
+                'COLLECTION_ID'              => 1000004, 
+                'COLLECTION_TITLE'           => 'Here is New York', 
+                'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+                'COLLECTION_DESC'            => null, 
+                'COLLECTION_FOLDER_NAME'     => null, 
+                'COLLECTION_ANNOTATION'      => null, 
+                'COLLECTION_NOTES'           => null, 
+                'COLLECTION_PARENT_ID'       => null, 
+                'STATUS_ID'                  => 2, 
+                'CONTRIBUTOR_ID'             => 0, 
+                'INGEST_ID'                  => null, 
+            ),
+            4 => array(
+                'COLLECTION_ID'              => 1000005, 
+                'COLLECTION_TITLE'           => 'Washington, D.C.', 
+                'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+                'COLLECTION_DESC'            => null, 
+                'COLLECTION_FOLDER_NAME'     => null, 
+                'COLLECTION_ANNOTATION'      => null, 
+                'COLLECTION_NOTES'           => null, 
+                'COLLECTION_PARENT_ID'       => null, 
+                'STATUS_ID'                  => 2, 
+                'CONTRIBUTOR_ID'             => 0, 
+                'INGEST_ID'                  => null, 
+            ),
+            5 => array(
+                'COLLECTION_ID'              => 1000006, 
+                'COLLECTION_TITLE'           => 'Pennsylvania', 
+                'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+                'COLLECTION_DESC'            => null, 
+                'COLLECTION_FOLDER_NAME'     => null, 
+                'COLLECTION_ANNOTATION'      => null, 
+                'COLLECTION_NOTES'           => null, 
+                'COLLECTION_PARENT_ID'       => null, 
+                'STATUS_ID'                  => 2, 
+                'CONTRIBUTOR_ID'             => 0, 
+                'INGEST_ID'                  => null, 
+            ),
         );
     }
     
     public function delete()
     {
-        $this->_deleteCollectionOmeka();
         $this->_deleteItemType();
+        foreach ($this->_hinyCollections as $hinyCollectionId => $hinyCollection) {
+            $this->_collectionSept11 = $hinyCollection;
+            $this->_deleteCollectionOmeka();
+        }
     }
     
     public function import()
     {
         $itemTypeId = $this->_insertItemType();
-        $collectionOmekaId = $this->_insertCollection();
         
+        // Set the collections.
+        foreach ($this->_hinyCollections as $hinyCollectionId => $hinyCollection) {
+            
+            // Be sure to set parent::$_collectionSept11 before calling 
+            // parent::_insertCollection().
+            $this->_collectionSept11 = $hinyCollection;
+            
+            if (0 == $hinyCollectionId) {
+                $parentCollectionOmekaId = $this->_insertCollection();
+                // Cache the Omeka collection ID.
+                $this->_hinyCollections[0]['omeka_collection_id'] = $parentCollectionOmekaId;
+            } else {
+                $childCollectionOmekaId = $this->_insertCollection();
+                // Cache the Omeka collection ID.
+                $this->_hinyCollections[$hinyCollectionId]['omeka_collection_id'] = $childCollectionOmekaId;
+                
+                // Save the collection parent/child relationship.
+                $collectionTree = new CollectionTree;
+                $collectionTree->collection_id = $childCollectionOmekaId;
+                $collectionTree->parent_collection_id = $parentCollectionOmekaId;
+                $collectionTree->save();
+            }
+        }
+        
+        // Set the items.
         $sql = "
         SELECT PhotoID, ContributorID, Description, Notes, Caption, SubmittedOn 
         FROM Photo";
-        
         foreach ($this->_dbHiny->fetchAll($sql) as $photo) {
+            
+            // Set the item's collection.
+            $sql = "
+            SELECT PhotoCollectionID 
+            FROM PhotoCollectionLK 
+            WHERE PhotoID = ? 
+            LIMIT 1";
+            $hinyCollectionId = $this->_dbHiny->fetchOne($sql, $photo['PhotoID']);
+            if ($hinyCollectionId) {
+                $collectionOmekaId = $this->_hinyCollections[$hinyCollectionId]['omeka_collection_id'];
+            } else {
+                $collectionOmekaId = $this->_hinyCollections[0]['omeka_collection_id'];
+            }
+            
             
             // Build the pseudo Sept11 object array.
             $object = array(
