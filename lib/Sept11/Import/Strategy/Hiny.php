@@ -33,13 +33,7 @@ class Sept11_Import_Strategy_Hiny extends Sept11_Import_Strategy_StrategyAbstrac
     {
         parent::__construct();
         
-        $this->_dbHiny = Zend_Db::factory('Pdo_Mysql', array(
-            'host'     => '', 
-            'username' => '', 
-            'password' => '', 
-            'dbname'   => '', 
-            'charset'  => 'utf8',
-        ));
+        $this->_dbHiny = Sept11_Import::getDbHiny();
         
         $collectionDescription = <<<DESCRIPTION
 In response to the World Trade Center tragedy, and to the unprecedented flood of images that have resulted from it, a unique exhibition and sale of photographs was displayed in a store front in SOHO. HERE IS NEW YORK is not a conventional gallery show. It is something new, a show tailored to the nature of the event, and to the response it has elicited. The exhibition is subtitled "A Democracy of Photographs" because anyone and everyone who has taken pictures relating to the tragedy was invited to submit their images to the gallery, where they were digitally scanned, printed and displayed on the walls alongside the work of top photojournalists and other professional photographers. All of the prints which HERE IS NEW YORK displays were sold to the public for $25, regardless of their provenance. The net proceeds from the sale of these prints went to the Children's Aid Society WTC Relief Fund, for the benefit of the thousands of children who are among the greatest victims of this catastrophe.

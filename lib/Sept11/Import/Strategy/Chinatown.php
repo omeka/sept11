@@ -35,13 +35,7 @@ class Sept11_Import_Strategy_Chinatown extends Sept11_Import_Strategy_StrategyAb
         parent::__construct();
         
         // Connect to the Chinatown database.
-        $this->_dbChinatown = Zend_Db::factory('Pdo_Mysql', array(
-            'host'     => '', 
-            'username' => '', 
-            'password' => '', 
-            'dbname'   => '', 
-            'charset'  => 'utf8', // must pass utf8 connection charset
-        ));
+        $this->_dbChinatown = Sept11_Import::getDbChinatown();
         
         // Build the pseudo Sept11 collection array.
         $collectionDescription = <<<DESCRIPTION

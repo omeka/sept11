@@ -1,6 +1,9 @@
 <?php
 require_once 'Sept11/Import/Exception.php';
 require_once 'Sept11/Db/Sept11.php';
+require_once 'Sept11/Db/Sonic.php';
+require_once 'Sept11/Db/Hiny.php';
+require_once 'Sept11/Db/Chinatown.php';
 
 class Sept11_Import
 {
@@ -529,5 +532,35 @@ class Sept11_Import
     public static function getDbSept11()
     {
         return Sept11_Db_Sept11::getInstance();
+    }
+    
+    /**
+     * Convenience method. Return the Sonic Memorial database object.
+     * 
+     * @return Zend_Db_Adapter_Abstract
+     */
+    public static function getDbSonic()
+    {
+        return Sept11_Db_Sonic::getInstance();
+    }
+    
+    /**
+     * Convenience method. Return the Here is New York database object.
+     * 
+     * @return Zend_Db_Adapter_Abstract
+     */
+    public static function getDbHiny()
+    {
+        return Sept11_Db_Hiny::getInstance();
+    }
+    
+    /**
+     * Convenience method. Return the sonic database object.
+     * 
+     * @return Zend_Db_Adapter_Abstract
+     */
+    public static function getDbChinatown()
+    {
+        return Sept11_Db_Chinatown::getInstance();
     }
 }
