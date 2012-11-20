@@ -104,6 +104,9 @@ class Sept11_Import
         
         // "Here is New York Photos"
         'Hiny', 
+        
+        // Sonic Memorial
+        'Sonic', 
     );
     
     /** Element sets to install */
