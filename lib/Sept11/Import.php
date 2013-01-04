@@ -10,7 +10,7 @@ class Sept11_Import
     /** Paths */
     const PATH_TMP = '/websites/911digitalarchive.org/omeka/sept11/tmp';
     const PATH_SEPT11 = '/websites/911digitalarchive.org/omeka/sept11/lib';
-    const PATH_OMEKA_PATHS = '/websites/911digitalarchive.org/omeka/paths.php';
+    const PATH_OMEKA_BOOTSTRAP = '/websites/911digitalarchive.org/omeka/bootstrap.php';
     
     /** Sept11 item element set name */
     const SEPT11_ITEM_ELEMENT_SET = '911DA Item';
@@ -284,7 +284,7 @@ class Sept11_Import
         // does not need a contributor log because this process saves the 
         // original contributor ID as the new primary key.
         $sept11 = self::getDbSept11()->getConfig();
-        $omeka = self::getDbOmeka()->getConnection()->getConfig();
+        $omeka = self::getDbOmeka()->getConfig();
         exec("mysqldump -u {$sept11['username']} -p{$sept11['password']} {$sept11['dbname']} CONTRIBUTORS | " 
            . "mysql -u {$omeka['username']} -p{$omeka['password']} {$omeka['dbname']}");
         $sql = '
@@ -312,6 +312,7 @@ class Sept11_Import
         
         // Disable file validation.
         set_option('disable_default_file_validation', '1');
+        
     }
     
     /**
@@ -335,13 +336,13 @@ class Sept11_Import
         $db->query($sql);
         $sql = "TRUNCATE `{$db->prefix}collections`";
         $db->query($sql);
-        $sql = "DELETE FROM `{$db->prefix}item_types` WHERE `id` > 13";
+        $sql = "DELETE FROM `{$db->prefix}item_types` WHERE `id` > 17";
         $db->query($sql);
         $sql = "DELETE FROM `{$db->prefix}item_types_elements` WHERE `id` > 47";
         $db->query($sql);
-        $sql = "DELETE FROM `{$db->prefix}element_sets` WHERE `id` > 6";
+        $sql = "DELETE FROM `{$db->prefix}element_sets` WHERE `id` > 3";
         $db->query($sql);
-        $sql = "DELETE FROM `{$db->prefix}elements` WHERE `id` > 85";
+        $sql = "DELETE FROM `{$db->prefix}elements` WHERE `id` > 51";
         $db->query($sql);
         
         // Delete import log and other tables created during install.
@@ -366,7 +367,12 @@ class Sept11_Import
         Sept11_Import::optimize();
         
         // Unlink all archive files. Directory constants from Omeka's paths.php.
-        $paths = array(FILES_DIR, FULLSIZE_DIR, THUMBNAIL_DIR, SQUARE_THUMBNAIL_DIR);
+        $paths = array(
+            FILES_DIR . '/original', 
+            FILES_DIR . '/fullsize', 
+            FILES_DIR . '/thumbnails', 
+            FILES_DIR . '/square_thumbnails', 
+        );
         foreach ($paths as $path) {
             $dir = new DirectoryIterator($path);
             foreach ($dir as $fileInfo) {
@@ -479,14 +485,13 @@ class Sept11_Import
     public static function loadOmeka()
     {
         // Do not reload Omeka.
-        if (!class_exists('Omeka_Context')) {
-            require_once self::PATH_OMEKA_PATHS;
-            $app = new Omeka_Core;
+        if (!class_exists('Omeka_Application')) {
+            require_once self::PATH_OMEKA_BOOTSTRAP;
+            $app = new Omeka_Application(APPLICATION_ENV);
             
             // Bootstrap only those resources that are required.
-            $app->getBootstrap()->bootstrap('Plugins');
-            $app->getBootstrap()->bootstrap('Jobs');
-            $app->getBootstrap()->bootstrap('Storage');
+            $app->getBootstrap()->bootstrap('storage');
+            $app->getBootstrap()->bootstrap('db');
         }
     }
     
@@ -524,7 +529,7 @@ class Sept11_Import
     {
         // Load Omeka if not already loaded.
         self::loadOmeka();
-        return Omeka_Context::getInstance()->getDb();
+        return Zend_Registry::get('bootstrap')->getResource('db');
     }
     
     /**
