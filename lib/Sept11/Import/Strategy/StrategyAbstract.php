@@ -159,11 +159,25 @@ abstract class Sept11_Import_Strategy_StrategyAbstract
         }
         
         // Set collection metadata.
-        $collectionMetadataOmeka['name'] = $this->_collectionSept11['COLLECTION_TITLE'];
-        $collectionMetadataOmeka['description'] = $this->_collectionSept11['COLLECTION_DESC'];
         $collectionMetadataOmeka['public'] = $this->_collectionIsPublic($this->_collectionSept11);
+        $elementTexts = array(
+            'Dublin Core' => array(
+                'Title' => array(
+                    array(
+                        'text' => $this->_collectionSept11['COLLECTION_TITLE'],
+                        'html' => false,
+                    ),
+                ),
+                'Description' => array(
+                    array(
+                        'text' => $this->_collectionSept11['COLLECTION_DESC'],
+                        'html' => false,
+                    ),
+                ),
+            )
+        );
         
-        $collectionOmeka = insert_collection($collectionMetadataOmeka);
+        $collectionOmeka = insert_collection($collectionMetadataOmeka, $elementTexts);
         $collectionIdOmeka = $collectionOmeka->id;
         $this->_logCollection($collectionIdOmeka);
         

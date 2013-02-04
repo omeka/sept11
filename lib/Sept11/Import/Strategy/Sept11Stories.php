@@ -40,7 +40,7 @@ class Sept11_Import_Strategy_Sept11Stories extends Sept11_Import_Strategy_Strate
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     '911DA Story: Story' => array(array('text' => $xml->STORY, 'html' => false))
                 )
             );

@@ -115,6 +115,7 @@ class Sept11_Import
             'metadata' => array(
                 'name' => self::SEPT11_ITEM_ELEMENT_SET, 
                 'description' => 'Elements describing a September 11 Digital Archive item.', 
+                'record_type' => 'Item', 
             ), 
             'element_metadata' => array(
                 array('name' => 'Status', // STATUS_ID
@@ -492,6 +493,9 @@ class Sept11_Import
             // Bootstrap only those resources that are required.
             $app->getBootstrap()->bootstrap('storage');
             $app->getBootstrap()->bootstrap('db');
+            $app->getBootstrap()->bootstrap('plugins');
+            $app->getBootstrap()->bootstrap('autoloader');
+            $app->getBootstrap()->bootstrap('helpers');
         }
     }
     
