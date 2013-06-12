@@ -4,7 +4,7 @@ class Sept11_Db_Hiny
     const HOST     = '';
     const USERNAME = '';
     const PASSWORD = '';
-    const DBNAME   = '';
+    const DBNAME   = 'hiny';
     
     private static $_instance;
     

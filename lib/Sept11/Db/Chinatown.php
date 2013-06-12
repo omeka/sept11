@@ -4,7 +4,7 @@ class Sept11_Db_Chinatown
     const HOST     = '';
     const USERNAME = '';
     const PASSWORD = '';
-    const DBNAME   = '';
+    const DBNAME   = 'cdp';
     
     private static $_instance;
     

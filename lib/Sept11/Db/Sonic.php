@@ -4,7 +4,7 @@ class Sept11_Db_Sonic
     const HOST     = '';
     const USERNAME = '';
     const PASSWORD = '';
-    const DBNAME   = '';
+    const DBNAME   = 'sonic';
     
     private static $_instance;
     
