@@ -1,7 +1,7 @@
 <?php
 class Sept11_Db_Sonic
 {
-    const HOST     = '';
+    const HOST     = 'localhost';
     const USERNAME = '';
     const PASSWORD = '';
     const DBNAME   = 'sonic';

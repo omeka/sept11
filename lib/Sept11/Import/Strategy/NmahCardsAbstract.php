@@ -47,7 +47,7 @@ abstract class Sept11_Import_Strategy_NmahCardsAbstract extends Sept11_Import_St
             $files = array();
             foreach ($xml->FILEPATH as $filepath) {
                 if (preg_match('/^tifs\//', $filepath)) {
-                    $files[] = '/websites/911digitalarchive.org/REPOSITORY/SMITHCARDS/' . $filepath; 
+                    $files[] = '/websites/sept11/home/www/911digitalarchive.org/REPOSITORY/SMITHCARDS/' . $filepath; 
                 }
             }
             natsort($files);

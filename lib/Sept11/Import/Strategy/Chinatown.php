@@ -138,7 +138,7 @@ DESCRIPTION;
         }
         
         // Create a temporary Zip archive from the Chinatown website directory.
-        chdir('/websites/911digitalarchive.org');
+        chdir('/websites/sept11/home/www/911digitalarchive.org');
         $zipArchivePath = Sept11_Import::PATH_TMP . "/chinatown";
         exec("zip -r $zipArchivePath.zip ./chinatown");
         

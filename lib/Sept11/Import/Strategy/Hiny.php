@@ -241,7 +241,7 @@ DESCRIPTION;
             
             $fileMetadata = array(
                 'file_transfer_type' => 'Filesystem', 
-                'files' => '/websites/911digitalarchive.org/hiny/jpegs/photos/' . str_pad($photo['PhotoID'], 4, '0', STR_PAD_LEFT) . '.jpg', 
+                'files' => '/websites/sept11/home/www/911digitalarchive.org/hiny/jpegs/photos/' . str_pad($photo['PhotoID'], 4, '0', STR_PAD_LEFT) . '.jpg', 
             );
             
             $itemId = $this->_insertItem($collectionOmekaId, $object, $metadata, 

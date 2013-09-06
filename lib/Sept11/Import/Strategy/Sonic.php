@@ -1,7 +1,7 @@
 <?php
 class Sept11_Import_Strategy_Sonic extends Sept11_Import_Strategy_StrategyAbstract
 {
-    const REPOSITORY_PATH = '/websites/911digitalarchive.org/sonicmedia/';
+    const REPOSITORY_PATH = '/websites/sept11/home/www/911digitalarchive.org/sonicmedia/';
     
     protected $_dbSonic;
     

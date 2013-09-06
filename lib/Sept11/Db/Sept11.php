@@ -1,7 +1,10 @@
 <?php
 class Sept11_Db_Sept11
 {
-    const PATH_SEPT11_DB = '/etc/httpd/includes/911da.inc.php';
+    const HOST     = 'localhost';
+    const USERNAME = '';
+    const PASSWORD = '';
+    const DBNAME   = 'sept11da';
     
     private static $_instance;
     
@@ -12,13 +15,12 @@ class Sept11_Db_Sept11
     {
         // Initialize the database object.
         if (null === self::$_instance) {
-            require_once self::PATH_SEPT11_DB;
             self::$_instance = Zend_Db::factory('Pdo_Mysql', array(
-                'host' => $HostNameForMySQL, 
-                'username' => $UserNameForMySQL, 
-                'password' => $PasswordForMySQL, 
-                'dbname' => $DatabaseNameForMySQL, 
-                'charset' => 'utf8', // must pass utf8 connection charset
+                'host'     => self::HOST, 
+                'username' => self::USERNAME, 
+                'password' => self::PASSWORD, 
+                'dbname'   => self::DBNAME, 
+                'charset'  => 'utf8', // must pass utf8 connection charset
             ));
         }
         

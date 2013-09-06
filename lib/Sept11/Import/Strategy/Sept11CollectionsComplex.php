@@ -4,7 +4,7 @@ require_once 'Sept11/Import/Strategy/StrategyAbstract.php';
 class Sept11_Import_Strategy_Sept11CollectionsComplex 
     extends Sept11_Import_Strategy_StrategyAbstract
 {
-    const PATH_MISC_COLLECTION = '/websites/911digitalarchive.org/REPOSITORY/MISC_COLLECTIONS';
+    const PATH_MISC_COLLECTION = '/websites/sept11/home/www/911digitalarchive.org/REPOSITORY/MISC_COLLECTIONS';
     
     // Sept11 collection IDs of all directories in REPOSITORY/MISC_COLLECTIONS 
     // that contain subdirectories and contain HTML and/or deep directory 

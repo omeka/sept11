@@ -8,9 +8,9 @@ require_once 'Sept11/Db/Chinatown.php';
 class Sept11_Import
 {
     /** Paths */
-    const PATH_TMP = '/websites/911digitalarchive.org/omeka/sept11/tmp';
-    const PATH_SEPT11 = '/websites/911digitalarchive.org/omeka/sept11/lib';
-    const PATH_OMEKA_BOOTSTRAP = '/websites/911digitalarchive.org/omeka/bootstrap.php';
+    const PATH_TMP = '/websites/sept11/home/www/sept11/tmp';
+    const PATH_SEPT11 = '/websites/sept11/home/www/sept11/lib';
+    const PATH_OMEKA_BOOTSTRAP = '/websites/sept11/home/www/omeka/bootstrap.php';
     
     /** Sept11 item element set name */
     const SEPT11_ITEM_ELEMENT_SET = '911DA Item';
@@ -496,6 +496,7 @@ class Sept11_Import
             $app->getBootstrap()->bootstrap('plugins');
             $app->getBootstrap()->bootstrap('autoloader');
             $app->getBootstrap()->bootstrap('helpers');
+            $app->getBootstrap()->bootstrap('jobs');
         }
     }
     
