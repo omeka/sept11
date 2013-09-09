@@ -51,7 +51,7 @@ class Sept11_Import_Strategy_RcStories extends Sept11_Import_Strategy_StrategyAb
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'RC Story: Story' => array(array('text' => $xml->STORY, 'html' => false)), 
                     'RC Story: Response' => array(array('text' => $xml->RESPONSE, 'html' => false)), 
                     'RC Story: RC Volunteer' => array(array('text' => $xml->RC_VOLUNTEER, 'html' => false)), 

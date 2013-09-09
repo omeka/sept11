@@ -43,7 +43,7 @@ class Sept11_Import_Strategy_SeiuStories extends Sept11_Import_Strategy_Strategy
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'SEIU Story: Story' => array(array('text' => $xml->STORY, 'html' => false)), 
                     'SEIU Story: Local Union' => array(array('text' => $xml->LOCAL_UNION, 'html' => false)), 
                 )

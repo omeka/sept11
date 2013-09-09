@@ -124,7 +124,7 @@ DESCRIPTION;
             
             $metadata = array('item_type_id' => $itemTypeId);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'Chinatown Interview: Interviewee'    => array(array('text' => $interview['interviewee'], 'html' => false)), 
                     'Chinatown Interview: Interviewer'    => array(array('text' => $interview['interviewer'], 'html' => false)), 
                     'Chinatown Interview: Date'           => array(array('text' => $interview['date'], 'html' => false)), 

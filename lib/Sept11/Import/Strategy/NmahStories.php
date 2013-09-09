@@ -52,7 +52,7 @@ class Sept11_Import_Strategy_NmahStories extends Sept11_Import_Strategy_Strategy
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'NMAH Story: Story' => array(array('text' => $xml->STORY, 'html' => false)), 
                     'NMAH Story: Life Changed' => array(array('text' => $xml->LIFE_CHANGED, 'html' => false)), 
                     'NMAH Story: Remembered' => array(array('text' => $xml->REMEMBERED, 'html' => false)), 

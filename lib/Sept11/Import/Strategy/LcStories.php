@@ -48,7 +48,7 @@ class Sept11_Import_Strategy_LcStories extends Sept11_Import_Strategy_StrategyAb
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'LC Story: Story' => array(array('text' => $xml->STORY, 'html' => false)), 
                     'LC Story: Memory' => array(array('text' => $xml->MEMORY, 'html' => false)), 
                     'LC Story: Affects' => array(array('text' => $xml->AFFECTS, 'html' => false)), 

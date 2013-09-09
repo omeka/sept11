@@ -99,7 +99,7 @@ DESCRIPTION;
             
             // Set the element texts.
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'Sonic Memorial: Name'            => array(array('text' => $soundUnit['name'], 'html' => false)), 
                     'Sonic Memorial: Source Ref Name' => array(array('text' => $soundUnit['source_ref_name'], 'html' => false)), 
                     'Sonic Memorial: Comments'        => array(array('text' => $soundUnit['comments'], 'html' => false)), 
@@ -122,7 +122,7 @@ DESCRIPTION;
             WHERE su_id = ?';
             $keywords = $this->_dbSonic->fetchAll($sql, $soundUnit['id'], Zend_Db::FETCH_COLUMN);
             foreach ($keywords as $keyword) {
-                $elementTexts[ELEMENT_SET_ITEM_TYPE]['Sonic Memorial: Keyword'][] = array('text' => $keyword, 'html' => false);
+                $elementTexts[ElementSet::ITEM_TYPE_NAME]['Sonic Memorial: Keyword'][] = array('text' => $keyword, 'html' => false);
             }
             
             // Set the file metadata, including sound unit children and assets.

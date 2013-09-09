@@ -28,7 +28,7 @@ class Sept11_Import_Strategy_LcEmails extends Sept11_Import_Strategy_EmailsAbstr
             // Set the email.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'Body' => array(array('text' => $xml->EMAIL_TEXT, 'html' => false)), 
                     'Date' => array(array('text' => $xml->EMAIL_DATE, 'html' => false)), 
                     'To' => array(array('text' => $xml->EMAIL_TO, 'html' => false)), 

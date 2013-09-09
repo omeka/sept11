@@ -99,7 +99,7 @@ class Sept11_Import_Strategy_VtmbhArticles extends Sept11_Import_Strategy_Strate
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'VTMBH Article: Edition' => array(array('text' => $xml->EDITION, 'html' => false)), 
                     'VTMBH Article: Article Order' => array(array('text' => $xml->ARTICLE_ORDER, 'html' => false)), 
                     'VTMBH Article: Title' => array(array('text' => $xml->TITLE, 'html' => false)), 

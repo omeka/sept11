@@ -56,10 +56,10 @@ abstract class Sept11_Import_Strategy_NmahCardsAbstract extends Sept11_Import_St
             $elementTexts = array();
             if (isset($xml->META)) {
                 if (isset($xml->META['card_version'])) {
-                    $elementTexts[ELEMENT_SET_ITEM_TYPE]['NMAH Card: Card Version'] = array(array('text' => (string) $xml->META['card_version'], 'html' => false));
+                    $elementTexts[ElementSet::ITEM_TYPE_NAME]['NMAH Card: Card Version'] = array(array('text' => (string) $xml->META['card_version'], 'html' => false));
                 }
                 if (isset($xml->META['card_version'])) {
-                    $elementTexts[ELEMENT_SET_ITEM_TYPE]['NMAH Card: Image Available'] = array(array('text' => (string) $xml->META['image_available'], 'html' => false));
+                    $elementTexts[ElementSet::ITEM_TYPE_NAME]['NMAH Card: Image Available'] = array(array('text' => (string) $xml->META['image_available'], 'html' => false));
                 }
             }
             $fileMetadata = array(

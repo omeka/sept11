@@ -39,7 +39,7 @@ class Sept11_Import_Strategy_TomPaineStories extends Sept11_Import_Strategy_Stra
             // Set the story.
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'TomPaine Story: Story' => array(array('text' => $xml->STORY, 'html' => false)), 
                 )
             );

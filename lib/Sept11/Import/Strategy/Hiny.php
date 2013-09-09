@@ -229,7 +229,7 @@ DESCRIPTION;
             
             $metadata = array('item_type_id' => $itemTypeId);
             $elementTexts = array(
-                ELEMENT_SET_ITEM_TYPE => array(
+                ElementSet::ITEM_TYPE_NAME => array(
                     'HINY Photo: Description' => array(array('text' => $photo['Description'], 'html' => false)), 
                     'HINY Photo: Notes' => array(array('text' => $photo['Notes'], 'html' => false)), 
                     'HINY Photo: Caption' => array(array('text' => $photo['Caption'], 'html' => false)), 
