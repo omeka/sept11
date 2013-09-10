@@ -41,8 +41,6 @@ abstract class Sept11_Import_Strategy_NmahCardsAbstract extends Sept11_Import_St
             
             $object = $this->_fetchObject($objectId);
             
-            echo $object['OBJECT_ABSOLUTE_PATH'] . "\n";
-            
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $files = array();
             foreach ($xml->FILEPATH as $filepath) {
