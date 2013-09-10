@@ -28,8 +28,8 @@ class Sept11_Import_Strategy_DojEmails extends Sept11_Import_Strategy_EmailsAbst
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
                 ElementSet::ITEM_TYPE_NAME => array(
-                    'Body' => array(array('text' => $xml->EMAIL_TEXT, 'html' => false)), 
-                    'Date' => array(array('text' => $xml->EMAIL_DATE, 'html' => false)), 
+                    'September 11 Email: Body' => array(array('text' => $xml->EMAIL_TEXT, 'html' => false)), 
+                    'September 11 Email: Date' => array(array('text' => $xml->EMAIL_DATE, 'html' => false)), 
                 )
             );
             

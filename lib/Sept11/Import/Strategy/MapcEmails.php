@@ -28,12 +28,12 @@ class Sept11_Import_Strategy_MapcEmails extends Sept11_Import_Strategy_EmailsAbs
             $xml = new SimpleXMLElement($object['OBJECT_ABSOLUTE_PATH'], null, true);
             $elementTexts = array(
                 ElementSet::ITEM_TYPE_NAME => array(
-                    'Body' => array(array('text' => $xml->EMAIL_TEXT, 'html' => false)), 
-                    'Date' => array(array('text' => $xml->EMAIL_DATE, 'html' => false)), 
-                    'To' => array(array('text' => $xml->EMAIL_TO, 'html' => false)), 
-                    'From' => array(array('text' => $xml->EMAIL_FROM, 'html' => false)), 
-                    'CC' => array(array('text' => $xml->EMAIL_CC, 'html' => false)), 
-                    'Subject' => array(array('text' => $xml->EMAIL_SUBJECT, 'html' => false)), 
+                    'September 11 Email: Body' => array(array('text' => $xml->EMAIL_TEXT, 'html' => false)), 
+                    'September 11 Email: Date' => array(array('text' => $xml->EMAIL_DATE, 'html' => false)), 
+                    'September 11 Email: To' => array(array('text' => $xml->EMAIL_TO, 'html' => false)), 
+                    'September 11 Email: From' => array(array('text' => $xml->EMAIL_FROM, 'html' => false)), 
+                    'September 11 Email: CC' => array(array('text' => $xml->EMAIL_CC, 'html' => false)), 
+                    'September 11 Email: Subject' => array(array('text' => $xml->EMAIL_SUBJECT, 'html' => false)), 
                 )
             );
             
