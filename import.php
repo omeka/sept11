@@ -13,6 +13,9 @@ function confirm($prompt)
 // Set the Sept11 library path.
 set_include_path(dirname(__FILE__) . '/lib' . PATH_SEPARATOR . get_include_path());
 
+// Define the shared DB constants.
+require_once 'db.php';
+
 // Load Omeka to access Zend Framework.
 require_once 'Sept11/Import.php';
 Sept11_Import::loadOmeka();

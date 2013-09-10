@@ -1,11 +1,6 @@
 <?php
 class Sept11_Db_Sonic
 {
-    const HOST     = 'localhost';
-    const USERNAME = '';
-    const PASSWORD = '';
-    const DBNAME   = 'sonic';
-    
     private static $_instance;
     
     private function __construct()
@@ -16,10 +11,10 @@ class Sept11_Db_Sonic
         // Initialize the database object.
         if (null === self::$_instance) {
             self::$_instance = Zend_Db::factory('Pdo_Mysql', array(
-                'host'     => self::HOST, 
-                'username' => self::USERNAME, 
-                'password' => self::PASSWORD, 
-                'dbname'   => self::DBNAME, 
+                'host'     => DB_HOST, 
+                'username' => DB_USERNAME, 
+                'password' => DB_PASSWORD, 
+                'dbname'   => 'sonic', 
                 'charset'  => 'utf8', // must pass utf8 connection charset
             ));
         }
