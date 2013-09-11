@@ -492,12 +492,14 @@ class Sept11_Import
             $app = new Omeka_Application(APPLICATION_ENV);
             
             // Bootstrap only those resources that are required.
-            $app->getBootstrap()->bootstrap('storage');
-            $app->getBootstrap()->bootstrap('db');
-            $app->getBootstrap()->bootstrap('plugins');
-            $app->getBootstrap()->bootstrap('autoloader');
-            $app->getBootstrap()->bootstrap('helpers');
-            $app->getBootstrap()->bootstrap('jobs');
+            $app->bootstrap(array('storage', 'db', 'plugins', 'autoloader', 
+                                  'helpers', 'jobs', 'auth'));
+            
+            // Set the current user. Assume ID #1 is the installing super user.
+            $user = get_db()->getTable('User')->findActiveById(1);
+            $app->getBootstrap()->getContainer()->currentuser = $user;
+            Zend_Controller_Action_HelperBroker::getStaticHelper('Acl')
+                ->setCurrentUser($user);
         }
     }
     
