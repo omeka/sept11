@@ -10,7 +10,7 @@ class Sept11_Import_Strategy_Sept11CollectionsComplex
     // that contain subdirectories and contain HTML and/or deep directory 
     // hierarchy.
     private $_collectionIdsSept11 = array(
-        44, 64, 67, 158, 175, 193, 219, 283, 297, 316, 2039, 12392, 12416, 
+        44, 64, 67, 158, 175, 193, 219, 283, 297, 316, 12392, 12416, 
         12421, 12444, 12453, 12546, 12551, 12563, 
     );
     
