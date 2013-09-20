@@ -1,6 +1,8 @@
 <?php
 class Sept11_Import_Strategy_Sonic extends Sept11_Import_Strategy_StrategyAbstract
 {
+    const COLLECTION_ID = 1000007;
+    
     const REPOSITORY_PATH = '/websites/sept11/home/www/911digitalarchive.org/sonicmedia/';
     
     protected $_dbSonic;
@@ -37,11 +39,6 @@ class Sept11_Import_Strategy_Sonic extends Sept11_Import_Strategy_StrategyAbstra
               'description' => ''),
     );
     
-    protected $_collectionMetadata = array(
-        'name' => 'The Sonic Memorial Project', 
-        'public' => true, 
-    );
-    
     public function __construct()
     {
         parent::__construct();
@@ -50,13 +47,27 @@ class Sept11_Import_Strategy_Sonic extends Sept11_Import_Strategy_StrategyAbstra
         $this->_dbSonic = Sept11_Import::getDbSonic();
         
         // Set the collection description.
-        $this->_collectionMetadata['description'] = <<<DESCRIPTION
+        $collectionDescription = <<<DESCRIPTION
 SonicMemorial.org is an open archive and an online audio installation of the history of The World Trade Center. It collected stories, ambient sounds, voicemails, and archival recordings to tell the rich history of the twin towers, the neighborhood and the events of 9/11.
 
 Led by NPR's Lost & Found Sound, The Sonic Memorial Project is a cross-media collaboration of more than 50 independent radio and new media producers, artists, historians, and people from around the world who have contributed personal and archival recordings. To date, we have gathered more than 1,000 contributions, many of which have been woven into feature stories by Lost & Found Sound and broadcast on NPR.
 
 SonicMemorial.org is produced by Picture Projects and dotsperinch in collaboration with Lost & Found Sound. 
 DESCRIPTION;
+        
+        $this->_collectionSept11 = array(
+            'COLLECTION_ID'              => self::COLLECTION_ID, 
+            'COLLECTION_TITLE'           => 'The Sonic Memorial Project', 
+            'COLLECTION_AUTHOR_DESCRIBE' => 'yes', 
+            'COLLECTION_DESC'            => $collectionDescription, 
+            'COLLECTION_FOLDER_NAME'     => null, 
+            'COLLECTION_ANNOTATION'      => null, 
+            'COLLECTION_NOTES'           => null, 
+            'COLLECTION_PARENT_ID'       => null, 
+            'STATUS_ID'                  => 2, 
+            'CONTRIBUTOR_ID'             => 0, 
+            'INGEST_ID'                  => null, 
+        );
     }
     
     public function delete(){}
@@ -223,17 +234,6 @@ DESCRIPTION;
             return Sept11_Import::STATUS_REVIEW;
         }
         return Sept11_Import::STATUS_APPROVED;
-    }
-    
-    /**
-     * Override parent::_insertCollection()
-     * 
-     * @return int
-     */
-    protected function _insertCollection()
-    {
-        $collectionOmeka = insert_collection($this->_collectionMetadata);
-        return $collectionOmeka->id;
     }
     
     public function getCollectionIdSept11(){}
