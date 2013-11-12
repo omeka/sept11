@@ -107,7 +107,10 @@ class Sept11_Import
         'Hiny', 
         
         // Sonic Memorial
-        'Sonic', 
+        'Sonic',
+
+        // Voices of 9.11
+        'VoicesOf911',
     );
     
     /** Element sets to install */
