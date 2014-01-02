@@ -341,6 +341,10 @@ class Sept11_Import
         $db->query($sql);
         $sql = "TRUNCATE `{$db->prefix}collections`";
         $db->query($sql);
+        $sql = "TRUNCATE `{$db->prefix}search_texts`";
+        $db->query($sql);
+        $sql = "TRUNCATE `{$db->prefix}sessions`";
+        $db->query($sql);
         $sql = "DELETE FROM `{$db->prefix}item_types` WHERE `id` > 17";
         $db->query($sql);
         $sql = "DELETE FROM `{$db->prefix}item_types_elements` WHERE `id` > 47";
